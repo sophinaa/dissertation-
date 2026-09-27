@@ -92,6 +92,54 @@ const products = [
     description:
       'A shea-based body butter concept for a daily body-care routine. Full formulation and suitability information are still to be confirmed.',
   },
+  {
+    id: 7,
+    name: 'Golden turmeric tea',
+    category: 'Nutrition',
+    price: 16,
+    ritual: 'Nourish',
+    ingredient: 'Turmeric',
+    size: '60 g',
+    image: 'photo-1544787219-7f47ccb76574',
+    description:
+      'A sample herbal tea blend for a warm everyday ritual. Ingredients and food labelling will be confirmed with the real catalogue.',
+  },
+  {
+    id: 8,
+    name: 'Botanical herbal infusion',
+    category: 'Nutrition',
+    price: 14,
+    ritual: 'Nourish',
+    ingredient: 'Herbs',
+    size: '50 g',
+    image: 'photo-1540555700478-4be289fbecef',
+    description:
+      'A sample botanical infusion concept. This listing makes no nutritional or medical claims.',
+  },
+  {
+    id: 9,
+    name: 'Daily ritual set',
+    category: 'Bundles',
+    price: 39,
+    ritual: 'Skin',
+    ingredient: 'Rosehip + jojoba',
+    size: '2 pieces',
+    image: 'photo-1608571423902-eed4a5ad8108',
+    description:
+      'A sample pair of facial oils for a simple routine. Contents and pricing are illustrative.',
+  },
+  {
+    id: 10,
+    name: 'Hair ritual duo',
+    category: 'Bundles',
+    price: 42,
+    ritual: 'Hair',
+    ingredient: 'Rosemary + amla',
+    size: '2 pieces',
+    image: 'photo-1608248543803-ba4f8c70ae0b',
+    description:
+      'A sample pair of hair oils. Contents and pricing are illustrative; no treatment claims are made.',
+  },
 ];
 type Product = (typeof products)[number];
 const money = (n: number) => `£${n.toFixed(2)}`;
@@ -132,7 +180,7 @@ export default function Home() {
           {
             name: 'read_sample_catalogue',
             description:
-              'Read the six sample products and their ritual, ingredient and price. Does not change preferences or place an order.',
+              'Read the ten sample products and their ritual, ingredient and price. Does not change preferences or place an order.',
             inputSchema: {
               type: 'object',
               properties: {},
@@ -160,7 +208,10 @@ export default function Home() {
   }, []);
   const filtered = products.filter(
     (p) =>
-      (category === 'All' || p.category === category) &&
+      (category === 'All' ||
+        p.category === category ||
+        (category === 'Beauty' &&
+          ['Face oils', 'Hair care', 'Body care'].includes(p.category))) &&
       `${p.name} ${p.category} ${p.ingredient}`
         .toLowerCase()
         .includes(query.toLowerCase()) &&
@@ -188,11 +239,16 @@ export default function Home() {
       'shea',
       'oil',
       'butter',
+      'turmeric',
+      'herbs',
+      'tea',
+      'nutrition',
+      'nourish',
     ];
     const terms = words.filter((w) => lower.includes(w));
     if (!cap && !terms.length) {
       setAnswer(
-        'This demo can match a care routine, ingredient or price from six sample products. Try “hair under £25”. Live conversational AI is planned. This guide cannot assess medical suitability or recommend treatment.',
+        'This demo can match a care routine, ingredient or price from ten sample products. Try “hair under £25”. Live conversational AI is planned. This guide cannot assess medical suitability or recommend treatment.',
       );
       return;
     }
@@ -232,13 +288,39 @@ export default function Home() {
         <button className="brand" onClick={() => setView('shop')}>
           botanical & you<span>SMALL RITUALS. EVERYDAY WELLBEING.</span>
         </button>
-        <nav aria-label="Main navigation">
-          <button
-            className={view === 'shop' ? 'active' : ''}
-            onClick={() => setView('shop')}
-          >
-            Shop the collection
-          </button>
+        <nav aria-label="Main navigation" className="shop-nav">
+          {[
+            { label: 'Shop all', category: 'All' },
+            { label: 'Beauty', category: 'Beauty' },
+            { label: 'Health & Nutrition', category: 'Nutrition' },
+            { label: 'Bundles', category: 'Bundles' },
+          ].map((item) => (
+            <button
+              key={item.label}
+              className={
+                view === 'shop' && category === item.category ? 'active' : ''
+              }
+              aria-current={
+                view === 'shop' && category === item.category
+                  ? 'page'
+                  : undefined
+              }
+              onClick={() => {
+                setView('shop');
+                setCategory(item.category);
+                setQuery('');
+                setRitual('Any');
+                setApplied(false);
+                requestAnimationFrame(() =>
+                  document
+                    .getElementById('collection')
+                    ?.scrollIntoView({ behavior: 'smooth' }),
+                );
+              }}
+            >
+              {item.label}
+            </button>
+          ))}
           <button
             onClick={() => {
               setView('shop');
@@ -249,7 +331,10 @@ export default function Home() {
           </button>
           <button
             className={view === 'overview' ? 'active' : ''}
-            onClick={() => setView('overview')}
+            onClick={() => {
+              setView('overview');
+              window.scrollTo(0, 0);
+            }}
           >
             Project overview <ArrowUpRight size={14} />
           </button>
@@ -292,7 +377,7 @@ export default function Home() {
                 <p className="eyebrow">WORKING IN THIS PROTOTYPE</p>
                 <h2>The customer journey</h2>
                 <ul>
-                  <li>Browse and search six sample products</li>
+                  <li>Browse and search ten sample products</li>
                   <li>Set ritual and budget preferences</li>
                   <li>See matching products and explanations</li>
                   <li>Try catalogue keyword matching</li>
@@ -489,7 +574,7 @@ export default function Home() {
                       setApplied(true);
                     }}
                   >
-                    {['Any', 'Skin', 'Hair', 'Body'].map((s) => (
+                    {['Any', 'Skin', 'Hair', 'Body', 'Nourish'].map((s) => (
                       <option key={s}>{s}</option>
                     ))}
                   </select>
@@ -539,18 +624,23 @@ export default function Home() {
                 <div>
                   <div className="catalogue-tools">
                     <div className="categories" aria-label="Product category">
-                      {['All', 'Face oils', 'Hair care', 'Body care'].map(
-                        (c) => (
-                          <button
-                            key={c}
-                            aria-pressed={category === c}
-                            className={category === c ? 'selected' : ''}
-                            onClick={() => setCategory(c)}
-                          >
-                            {c}
-                          </button>
-                        ),
-                      )}
+                      {[
+                        'All',
+                        'Face oils',
+                        'Hair care',
+                        'Body care',
+                        'Nutrition',
+                        'Bundles',
+                      ].map((c) => (
+                        <button
+                          key={c}
+                          aria-pressed={category === c}
+                          className={category === c ? 'selected' : ''}
+                          onClick={() => setCategory(c)}
+                        >
+                          {c}
+                        </button>
+                      ))}
                     </div>
                     <label className="search">
                       <Search size={16} />
@@ -736,7 +826,7 @@ export default function Home() {
                   value={ritual}
                   onChange={(e) => setRitual(e.target.value)}
                 >
-                  {['Any', 'Skin', 'Hair', 'Body'].map((s) => (
+                  {['Any', 'Skin', 'Hair', 'Body', 'Nourish'].map((s) => (
                     <option key={s}>{s}</option>
                   ))}
                 </select>

@@ -28,7 +28,7 @@ Open the local URL printed by the server. `npm run build` creates the deployment
 
 ## Working features
 
-- Responsive storefront with sample branding and six sample products.
+- Responsive storefront with sample branding and ten sample products.
 - Product search and category filtering.
 - Care routine and budget preferences with deterministic filtering.
 - Conventional and personalised viewing modes.
@@ -58,3 +58,5 @@ Confirm real business name, product category, catalogue access, deadlines, unive
 ## Wellness design direction
 
 Botanical & You is a fictional sample brand inspired by ingredient-led wellness shopping. Products and prices are illustrative. The guide matches catalogue attributes, not symptoms or medical conditions. The original generated hero image is a product concept, not a photograph of real inventory. Product card photos are illustrative stock imagery. This revision is local-only; the earlier hosted preview has not been updated.
+
+The main menu demonstrates Shop all, Beauty, Health & Nutrition, Find your ritual, Bundles, and Project overview. Beauty groups face, hair and body care; Nutrition and Bundles show clearly marked sample products.

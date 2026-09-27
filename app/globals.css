@@ -1128,3 +1128,73 @@ footer > button {
     font-size: 29px;
   }
 }
+
+/* Clear shopping navigation across desktop and mobile. */
+.header {
+  min-height: 96px;
+  gap: 22px;
+}
+.header .brand {
+  flex: 0 0 auto;
+}
+.shop-nav {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 7px 17px;
+  align-items: center;
+}
+.shop-nav button {
+  white-space: nowrap;
+  padding: 8px 0;
+  color: #50614a;
+}
+.shop-nav button.active {
+  color: #263c25;
+  border-bottom: 1px solid #50614a;
+}
+.shop-nav button:hover {
+  color: #263c25;
+}
+.bag-button {
+  flex: 0 0 auto;
+}
+@media (max-width: 1120px) {
+  .header {
+    flex-wrap: wrap;
+  }
+  .shop-nav {
+    order: 3;
+    width: 100%;
+    justify-content: space-between;
+  }
+  .shop-nav button {
+    font-size: 12px;
+  }
+}
+@media (max-width: 650px) {
+  .header {
+    gap: 14px;
+  }
+  .shop-nav {
+    display: flex;
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    overflow-x: auto;
+    scrollbar-width: thin;
+    gap: 22px;
+    white-space: nowrap;
+    padding-bottom: 8px;
+  }
+  .shop-nav button {
+    flex: 0 0 auto;
+    padding: 7px 0;
+    font-size: 12px;
+  }
+  .header .brand {
+    font-size: 25px;
+  }
+  .bag-button {
+    margin-left: auto;
+  }
+}
