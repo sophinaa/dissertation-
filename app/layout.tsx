@@ -1,10 +1,20 @@
 import type { Metadata } from 'next';
 import './globals.css';
 export const metadata: Metadata = {
- metadataBase: new URL('https://personal-shopping-dissertation.robust-jay-3871.chatgpt.site'),
- openGraph: { title: 'Your Brand — Personal Shopping Prototype', description: 'An interactive e-commerce dissertation prototype.', images: ['/og.png'] },
- twitter: { card: 'summary_large_image', title: 'Your Brand — Personal Shopping Prototype', images: ['/og.png'] },
- title: 'Your Brand — Personal Shopping Prototype',
- description: 'An interactive e-commerce dissertation prototype: discover products, set preferences and explore a sample shopping assistant.',
+  title: 'Botanical & You — Wellness Shopping Prototype',
+  description:
+    'Explore botanical oils and everyday skin, hair and body care in a personalised wellness shopping prototype.',
+  openGraph: {
+    title: 'Botanical & You',
+    description: 'Small rituals. Everyday wellbeing.',
+  },
 };
-export default function RootLayout({children}:Readonly<{children:React.ReactNode}>){return <html lang="en"><body>{children}</body></html>}
+export default function RootLayout({
+  children,
+}: Readonly<{ children: React.ReactNode }>) {
+  return (
+    <html lang="en">
+      <body>{children}</body>
+    </html>
+  );
+}

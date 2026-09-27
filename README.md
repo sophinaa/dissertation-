@@ -1,4 +1,4 @@
-# Personal Shopping — dissertation prototype
+# Botanical & You — wellness shopping prototype
 
 A clickable website skeleton for the supervisor meeting on Monday 28 September 2026.
 
@@ -18,11 +18,11 @@ Open the local URL printed by the server. `npm run build` creates the deployment
 ## Five-minute meeting demonstration
 
 1. Open Discover and explain the single-brand shopping concept.
-2. Click Find my match. Select Minimal and a budget of £80.
+2. Click Find my match. Select Hair and a budget of £25.
 3. Show the filtered catalogue and the preference explanation.
 4. Switch to Conventional to demonstrate standard search and category filtering.
 5. Select Compare on two products and open Compare selected.
-6. Try the shopping assistant with “minimal under £80”. Explain that it is a scripted prototype, not an LLM.
+6. Try the shopping assistant with “hair under £25”. Explain that it is a scripted prototype, not an LLM.
 7. Add an item to the demo bag.
 8. Open Project overview to discuss the research question and scope.
 
@@ -30,7 +30,7 @@ Open the local URL printed by the server. `npm run build` creates the deployment
 
 - Responsive storefront with sample branding and six sample products.
 - Product search and category filtering.
-- Style and budget preferences with deterministic filtering.
+- Care routine and budget preferences with deterministic filtering.
 - Conventional and personalised viewing modes.
 - Product details, comparison, save toggles and session-only basket.
 - Scripted catalogue matcher with no-match and unsupported-query responses.
@@ -54,3 +54,7 @@ The conventional/personalised switch illustrates a study concept; it is not yet 
 ## Before development proceeds
 
 Confirm real business name, product category, catalogue access, deadlines, university requirements and ethics process. Review dependency audit results before production use. The starter installation reported 11 advisories; no automatic breaking dependency upgrades have been applied.
+
+## Wellness design direction
+
+Botanical & You is a fictional sample brand inspired by ingredient-led wellness shopping. Products and prices are illustrative. The guide matches catalogue attributes, not symptoms or medical conditions. The original generated hero image is a product concept, not a photograph of real inventory. Product card photos are illustrative stock imagery. This revision is local-only; the earlier hosted preview has not been updated.
