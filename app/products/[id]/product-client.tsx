@@ -1,0 +1,231 @@
+'use client';
+
+import Link from 'next/link';
+import { useEffect, useState } from 'react';
+import { MessageCircle } from 'lucide-react';
+import {
+  CATEGORY_LABELS,
+  GOAL_LABELS,
+  HAIR_TYPE_LABELS,
+  INGREDIENTS,
+  PRODUCTS,
+  SKIN_TYPE_LABELS,
+  TAG_LABELS,
+  TEXTURE_HELP,
+  TEXTURE_LABELS,
+  formatPrice,
+  formatPricePer100,
+  formatSize,
+  getProduct,
+  productAreasLabel,
+  scentText,
+  type IngredientTag,
+} from '@/lib/catalogue.ts';
+import { evaluateProduct, recommend } from '@/lib/recommend.ts';
+import {
+  AddToBasketButton,
+  AvailabilityBadge,
+  CompareButton,
+  DemoNotice,
+  FitDetails,
+  ProductCard,
+  ProductImage,
+  QuantityInput,
+} from '@/components/product-ui';
+import { MAX_QTY, useActivePrefs, useStore } from '@/components/store';
+
+const NOT_SPECIFIED = 'Not specified in the catalogue';
+
+export function ProductClient({ id }: { id: string }) {
+  const product = getProduct(id)!;
+  const { markViewed, features, openAssistant, hydrated } = useStore();
+  const prefs = useActivePrefs();
+  const [qty, setQty] = useState(1);
+
+  useEffect(() => {
+    if (hydrated) markViewed(id);
+  }, [id, hydrated, markViewed]);
+
+  const fit = prefs ? evaluateProduct(product, prefs) : null;
+  const rank = prefs ? recommend(prefs).recommended.findIndex((f) => f.product.id === id) : -1;
+  const similar = PRODUCTS.filter(
+    (p) => p.id !== id && p.areas.some((a) => product.areas.includes(a)) && p.goals.some((g) => product.goals.includes(g)),
+  )
+    .map((p) => ({ p, fit: prefs ? evaluateProduct(p, prefs) : null }))
+    .filter(({ fit: f }) => !f || f.eligible)
+    .slice(0, 3);
+  const tags = product.ingredients
+    ? [...new Set(product.ingredients.flatMap((i) => INGREDIENTS[i].tags as readonly IngredientTag[]))]
+    : [];
+
+  return (
+    <div className="page product-page">
+      <nav aria-label="Breadcrumb" className="breadcrumb">
+        <ol>
+          <li>
+            <Link href="/shop">Shop</Link>
+          </li>
+          <li>
+            <Link href={`/shop?category=${product.category}`}>{CATEGORY_LABELS[product.category]}</Link>
+          </li>
+          <li aria-current="page">{product.name}</li>
+        </ol>
+      </nav>
+
+      <div className="product-layout">
+        <ProductImage product={product} large />
+        <div className="product-main">
+          <p className="eyebrow">
+            {CATEGORY_LABELS[product.category]} · {productAreasLabel(product)}
+          </p>
+          <h1>{product.name}</h1>
+          <p className="product-price">
+            <strong>{formatPrice(product.pricePence)}</strong> · {formatSize(product)}{' '}
+            <span className="hint">({formatPricePer100(product)})</span>
+          </p>
+          <AvailabilityBadge product={product} />
+          <p className="lede">{product.description}</p>
+          {product.setContents && (
+            <>
+              <h2 className="h-small">In the set</h2>
+              <ul>
+                {product.setContents.map((c) => (
+                  <li key={c}>{c}</li>
+                ))}
+              </ul>
+            </>
+          )}
+
+          <div className="buy-box">
+            {product.availability !== 'out-of-stock' && (
+              <QuantityInput value={qty} onChange={setQty} max={MAX_QTY} label={`Quantity of ${product.name}`} />
+            )}
+            <AddToBasketButton product={product} qty={qty} />
+            <CompareButton product={product} className="btn btn-secondary" />
+            {features.assistant && (
+              <button
+                type="button"
+                className="btn btn-secondary"
+                onClick={() => openAssistant({ productId: product.id })}
+              >
+                <MessageCircle size={16} aria-hidden="true" /> Ask about this product
+              </button>
+            )}
+          </div>
+
+          {fit && (
+            <section className={`fit-panel${fit.eligible ? '' : ' mismatch'}`} aria-labelledby="fit-heading">
+              <h2 id="fit-heading">
+                {!fit.eligible
+                  ? 'This doesn’t fit your preferences'
+                  : rank >= 0
+                    ? `#${rank + 1} of your recommendations`
+                    : 'How this fits your preferences'}
+              </h2>
+              <FitDetails fit={fit} />
+              <p className="hint">
+                <Link href="/preferences?return=summary">Review or change your preferences</Link>
+              </p>
+            </section>
+          )}
+          {features.personalisation && !prefs && hydrated && (
+            <p className="hint">
+              Want to know how this fits you? <Link href="/preferences">Answer a few questions</Link>.
+            </p>
+          )}
+        </div>
+      </div>
+
+      <div className="product-sections">
+        <section aria-labelledby="details">
+          <h2 id="details">Product details</h2>
+          <dl className="facts">
+            <dt>For</dt>
+            <dd>{productAreasLabel(product)}</dd>
+            <dt>Scent</dt>
+            <dd>
+              {scentText(product) ?? NOT_SPECIFIED}
+            </dd>
+            <dt>Texture</dt>
+            <dd>
+              {product.texture
+                ? `${TEXTURE_LABELS[product.texture]}${product.texture !== 'varies' ? ` — ${TEXTURE_HELP[product.texture]}` : ''}`
+                : NOT_SPECIFIED}
+            </dd>
+            <dt>Intended for</dt>
+            <dd>{product.goals.map((g) => GOAL_LABELS[g]).join('; ')}</dd>
+            {product.areas.includes('skin') && (
+              <>
+                <dt>Skin types</dt>
+                <dd>{product.skinTypes ? product.skinTypes.map((t) => SKIN_TYPE_LABELS[t]).join(', ') : NOT_SPECIFIED}</dd>
+              </>
+            )}
+            {product.areas.includes('hair') && (
+              <>
+                <dt>Hair types</dt>
+                <dd>{product.hairTypes ? product.hairTypes.map((t) => HAIR_TYPE_LABELS[t]).join(', ') : NOT_SPECIFIED}</dd>
+              </>
+            )}
+            <dt>Routine</dt>
+            <dd>{product.routineFit === 'simple' ? 'Multi-use or a single step' : 'A dedicated step in a fuller routine'}</dd>
+          </dl>
+        </section>
+
+        <section aria-labelledby="ingredients">
+          <h2 id="ingredients">Ingredients</h2>
+          {product.ingredients ? (
+            <>
+              <ol className="ingredients">
+                {product.ingredients.map((i) => (
+                  <li key={i}>
+                    <details>
+                      <summary>
+                        {INGREDIENTS[i].name} <span className="inci">({INGREDIENTS[i].inci})</span>
+                      </summary>
+                      <p>{INGREDIENTS[i].about}</p>
+                    </details>
+                  </li>
+                ))}
+              </ol>
+              <p className="hint">
+                Listed in label order. Contains: {tags.length ? tags.map((t) => TAG_LABELS[t].toLowerCase()).join(', ') : 'none of the ingredient groups customers can filter out'}.
+              </p>
+            </>
+          ) : (
+            <p className="notice">
+              The full ingredient list for this product hasn’t been confirmed yet, so it can’t be checked against
+              ingredients you want to avoid.
+            </p>
+          )}
+        </section>
+
+        <section aria-labelledby="usage">
+          <h2 id="usage">How to use</h2>
+          <p>{product.usage ?? 'Directions haven’t been confirmed for this product yet.'}</p>
+        </section>
+
+        <section aria-labelledby="warnings">
+          <h2 id="warnings">Warnings</h2>
+          <ul>
+            {product.warnings.map((w) => (
+              <li key={w}>{w}</li>
+            ))}
+          </ul>
+        </section>
+      </div>
+
+      <DemoNotice />
+
+      {similar.length > 0 && (
+        <section className="section" aria-labelledby="similar">
+          <h2 id="similar">{prefs ? 'Similar products that fit your preferences' : 'Similar products'}</h2>
+          <div className="grid">
+            {similar.map(({ p, fit: f }) => (
+              <ProductCard key={p.id} product={p} fit={f} />
+            ))}
+          </div>
+        </section>
+      )}
+    </div>
+  );
+}

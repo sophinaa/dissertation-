@@ -1,62 +1,85 @@
-# Botanical & You — wellness shopping prototype
+# Botanical & You — personalised shopping prototype
 
-A clickable website skeleton for the supervisor meeting on Monday 28 September 2026.
+Dissertation prototype for **“Designing and Evaluating an Interactive, AI-Assisted Personalised E-commerce Platform.”**
+A single-brand UK shop for natural skin and hair care oils, with a conventional shopping path and an optional assisted path (preferences → explained recommendations → finder → catalogue-grounded assistant), both built on one catalogue.
 
-**Working title:** Designing and Evaluating an Interactive, AI-Assisted Personalised E-commerce Platform.
+> **All products are demonstration data.** Names, prices, formulations, directions and stock levels in `lib/catalogue.ts` are illustrative and are not verified product information. “Botanical & You” is a working placeholder name.
 
-## Run locally
+## Run, test and check
 
-Requires Node.js 22.13+.
+Requires Node.js 22.13+ (tests use Node’s built-in TypeScript support).
 
 ```sh
 npm install
-npm run dev
+npm run dev          # local server (vinext / Vite)
+npm test             # unit tests: recommendations, finder, assistant grounding, catalogue, basket, study
+npm run typecheck    # tsc --noEmit
+npm run lint         # oxlint (pre-existing warnings remain in components/ui — see below)
+npm run build        # production build
 ```
 
-Open the local URL printed by the server. `npm run build` creates the deployment build. `npx tsc --noEmit` checks TypeScript.
+### Enabling the live AI assistant (optional)
 
-## Five-minute meeting demonstration
+Without credentials the assistant uses an **offline, rule-based catalogue helper** and the interface says so (“rule-based, not AI”). To use Claude:
 
-1. Open Discover and explain the single-brand shopping concept.
-2. Click Find my match. Select Hair and a budget of £25.
-3. Show the filtered catalogue and the preference explanation.
-4. Switch to Conventional to demonstrate standard search and category filtering.
-5. Select Compare on two products and open Compare selected.
-6. Try the shopping assistant with “hair under £25”. Explain that it is a scripted prototype, not an LLM.
-7. Add an item to the demo bag.
-8. Open Project overview to discuss the research question and scope.
+1. Create `.env.local` (git-ignored) with:
+   ```
+   ANTHROPIC_API_KEY=your-key
+   # optional; defaults to claude-opus-5-5
+   ASSISTANT_MODEL=claude-opus-5-5
+   ```
+2. Restart `npm run dev`. The panel will then read “AI assistant (Claude)”.
 
-## Working features
+The key is read only in `app/api/assistant/route.ts` (server). It is never sent to the browser; a test checks that no client file references it. For a Cloudflare deployment, store it as a Worker secret (`wrangler secret put ANTHROPIC_API_KEY`) and confirm the Worker exposes it through `process.env` (requires the `nodejs_compat` flag, which is configured) — this has not been tested on a deployment yet. The request enables Anthropic’s server-side refusal fallback (`fallbacks: "default"`).
 
-- Responsive storefront with sample branding and ten sample products.
-- Product search and category filtering.
-- Care routine and budget preferences with deterministic filtering.
-- Conventional and personalised viewing modes.
-- Product details, comparison, save toggles and session-only basket.
-- Scripted catalogue matcher with no-match and unsupported-query responses.
-- Supervisor project overview, research question and provisional roadmap.
+## What the prototype supports
 
-## Deliberately not implemented
+| Area | Status |
+| --- | --- |
+| Catalogue browse, search, filters (area, category, price, scent, texture, ingredients to avoid, stock), sorting, URL-shareable filters, empty states | Functional |
+| Product pages with ingredients (with plain-language explanations), usage, warnings, availability, explicit “not specified” for missing data | Functional |
+| 5-step questionnaire (progress, back, “Not sure”, validation, saved draft, exit) and single-answer editing | Functional |
+| Rule-based recommendations with hard constraints, explained ranking, no-match diagnosis | Functional, unit-tested |
+| Personalised homepage, preference summary, edit and reset | Functional |
+| Guided finder that reuses saved answers and keeps its own answers temporary | Functional, unit-tested |
+| Comparison (up to 3), price per 100 ml/g, preference row, “no overall best” | Functional |
+| Basket (quantities, totals, persistence, preference-mismatch notes) | Functional |
+| Shopping assistant | Live Claude integration implemented but **not exercised with real credentials**; offline rule-based helper functional |
+| Checkout, payment, accounts, order history, admin | **Not implemented** (basket says checkout is unavailable) |
+| Conventional vs assisted study conditions and local event log (`/study`) | Functional; requires ethics/consent decisions before real use |
 
-No real AI model, authentication, database, payments, order processing or administration. All state resets when the page reloads. Saved hearts are session-only visual selections. No information is sent to an AI provider. Product photos use remote Unsplash images and are illustrative, not actual business products. The website is not a validated accessible or production-ready shop.
+## Architecture
 
-The conventional/personalised switch illustrates a study concept; it is not yet a controlled experiment. Personalisation currently filters products rather than learning or ranking preferences.
+- `lib/catalogue.ts` — the single source of product truth (ingredients dictionary with tags, product records, labels, helpers). Used by every page, the recommendation engine, comparison and the assistant.
+- `lib/preferences.ts` — preference model, option lists, normalisation of untrusted input, conflict detection.
+- `lib/recommend.ts` — deterministic recommendation engine and explanation generator. See [docs/RECOMMENDATIONS.md](docs/RECOMMENDATIONS.md).
+- `lib/finder.ts` — guided finder question selection.
+- `lib/search.ts`, `lib/basket.ts` — conventional search/filter/sort and basket pricing.
+- `lib/assistant/shared.ts` — request validation, catalogue records sent to the model, context building, output validation, system prompt.
+- `lib/assistant/offline.ts` — rule-based fallback responder.
+- `app/api/assistant/route.ts` — server route calling Claude via `@anthropic-ai/sdk` with JSON-schema output; every product ID is validated against the catalogue.
+- `lib/study.ts` + `app/study/` — study conditions, tasks and event log. See [docs/EVALUATION.md](docs/EVALUATION.md).
+- `components/store.tsx` — shared client state (preferences, basket, comparison, recently viewed, assistant thread, study session) and persistence.
+- `app/*` — routes: `/`, `/shop`, `/products/[id]`, `/preferences`, `/recommendations`, `/finder`, `/compare`, `/basket`, `/about`, `/study` (unlisted).
 
-## Project structure
+### Data and privacy
 
-- `app/page.tsx`: interactive prototype and sample catalogue.
-- `app/globals.css`: responsive visual design and theme.
-- `app/layout.tsx`: page metadata.
-- `components/ui/`: provided interface primitives.
-- `docs/ROADMAP.md`: milestones and supervisor decisions.
-- `.github/ISSUE_TEMPLATE/`: task and research decision templates.
+No accounts, analytics or server-side storage. Preferences, basket, comparison and recently viewed live in `localStorage` (preferences expire after 30 days and can be reset). The assistant conversation is kept in `sessionStorage` only. Study sessions use a separate `sessionStorage` namespace that is wiped when a session starts or ends. Customer messages are not logged by the server. When the live assistant is enabled, the question, recent conversation, current/compared product IDs and a summary of the customer’s preferences are sent to Anthropic.
 
-## Before development proceeds
+## Provisional decisions (please review)
 
-Confirm real business name, product category, catalogue access, deadlines, university requirements and ethics process. Review dependency audit results before production use. The starter installation reported 11 advisories; no automatic breaking dependency upgrades have been applied.
+- **Brand name** “Botanical & You” kept from the earlier prototype; flagged as a placeholder.
+- **Catalogue scope:** 16 demonstration products (face, body, hair, scalp, multi-use, sets), including rose, argan, rocket (taramira), tea tree and a mixed oil. The earlier herbal teas (“Health & Nutrition”) were removed as outside skin and hair care.
+- **Deliberate data gaps** for testing honesty: *Rosemary Hair Oil* has unconfirmed ingredients, scent, texture and directions; *Amla & Sesame Hair Oil* has unconfirmed scent and is out of stock.
+- **Images:** the earlier Unsplash stock photos were replaced with labelled placeholders (“No product photo yet”). The homepage image is labelled a concept illustration; a compressed `wellness-hero.jpg` is used (the original PNG is kept).
+- **Visual direction:** refined from the earlier prototype (cream, deep green, serif headings); consolidated into tokens in `app/globals.css`.
+- **Comparison is available in both study conditions** as a standard e-commerce feature; only the “Your preferences” row is assisted-only. Confirm with your supervisor.
+- **Producer-community copy** is written as an intention, with no partners, locations or percentages.
 
-## Wellness design direction
+## Known limitations
 
-Botanical & You is a fictional sample brand inspired by ingredient-led wellness shopping. Products and prices are illustrative. The guide matches catalogue attributes, not symptoms or medical conditions. The original generated hero image is a product concept, not a photograph of real inventory. Product card photos are illustrative stock imagery. This revision is local-only; the earlier hosted preview has not been updated.
-
-The main menu demonstrates Shop all, Beauty, Health & Nutrition, Find your ritual, Bundles, and Project overview. Beauty groups face, hair and body care; Nutrition and Bundles show clearly marked sample products.
+- The live Claude path has not been run against the real API here (no credentials were available); error mapping is implemented and the offline path is tested.
+- Product data is illustrative; real formulations, prices, directions and warnings must replace it before customer use, and safety wording should be reviewed by someone qualified.
+- `npm run lint` still reports pre-existing errors in the generated `components/ui/*` primitives and `hooks/use-mobile.ts`, which were not modified. `dissertation-/` is an older nested copy of the project and is excluded from lint and type checks.
+- The starter install reported dependency audit advisories; no automatic upgrades were applied.
+- Not a validated accessible or production-ready shop: keyboard, focus, contrast and mobile were checked in a headless browser, but no screen-reader or user testing has been done.
