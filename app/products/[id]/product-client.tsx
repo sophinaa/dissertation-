@@ -130,15 +130,17 @@ export function ProductClient({ id }: { id: string }) {
           )}
           {features.personalisation && !prefs && hydrated && (
             <p className="hint">
-              Want to know how this fits you? <Link href="/preferences">Answer a few questions</Link>.
+              <Link href="/preferences">See how this fits you</Link>
             </p>
           )}
         </div>
       </div>
 
-      <div className="product-sections">
-        <section aria-labelledby="details">
-          <h2 id="details">Product details</h2>
+      <div className="accordions">
+        <details>
+          <summary>
+            <h2>Details</h2>
+          </summary>
           <dl className="facts">
             <dt>For</dt>
             <dd>{productAreasLabel(product)}</dd>
@@ -169,10 +171,12 @@ export function ProductClient({ id }: { id: string }) {
             <dt>Routine</dt>
             <dd>{product.routineFit === 'simple' ? 'Multi-use or a single step' : 'A dedicated step in a fuller routine'}</dd>
           </dl>
-        </section>
+        </details>
 
-        <section aria-labelledby="ingredients">
-          <h2 id="ingredients">Ingredients</h2>
+        <details open>
+          <summary>
+            <h2>Ingredients</h2>
+          </summary>
           {product.ingredients ? (
             <>
               <ol className="ingredients">
@@ -187,31 +191,32 @@ export function ProductClient({ id }: { id: string }) {
                   </li>
                 ))}
               </ol>
-              <p className="hint">
-                Listed in label order. Contains: {tags.length ? tags.map((t) => TAG_LABELS[t].toLowerCase()).join(', ') : 'none of the ingredient groups customers can filter out'}.
-              </p>
+              {tags.length > 0 && (
+                <p className="hint">Contains: {tags.map((t) => TAG_LABELS[t].toLowerCase()).join(', ')}.</p>
+              )}
             </>
           ) : (
-            <p className="notice">
-              The full ingredient list for this product hasn’t been confirmed yet, so it can’t be checked against
-              ingredients you want to avoid.
-            </p>
+            <p className="notice">Not confirmed yet — so we can’t check it against ingredients you avoid.</p>
           )}
-        </section>
+        </details>
 
-        <section aria-labelledby="usage">
-          <h2 id="usage">How to use</h2>
+        <details>
+          <summary>
+            <h2>How to use</h2>
+          </summary>
           <p>{product.usage ?? 'Directions haven’t been confirmed for this product yet.'}</p>
-        </section>
+        </details>
 
-        <section aria-labelledby="warnings">
-          <h2 id="warnings">Warnings</h2>
+        <details>
+          <summary>
+            <h2>Warnings</h2>
+          </summary>
           <ul>
             {product.warnings.map((w) => (
               <li key={w}>{w}</li>
             ))}
           </ul>
-        </section>
+        </details>
       </div>
 
       <DemoNotice />

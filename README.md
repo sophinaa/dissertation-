@@ -72,7 +72,7 @@ No accounts, analytics or server-side storage. Preferences, basket, comparison a
 - **Catalogue scope:** 16 demonstration products (face, body, hair, scalp, multi-use, sets), including rose, argan, rocket (taramira), tea tree and a mixed oil. The earlier herbal teas (“Health & Nutrition”) were removed as outside skin and hair care.
 - **Deliberate data gaps** for testing honesty: *Rosemary Hair Oil* has unconfirmed ingredients, scent, texture and directions; *Amla & Sesame Hair Oil* has unconfirmed scent and is out of stock.
 - **Images:** the earlier Unsplash stock photos were replaced with labelled placeholders (“No product photo yet”). The homepage image is labelled a concept illustration; a compressed `wellness-hero.jpg` is used (the original PNG is kept).
-- **Visual direction:** refined from the earlier prototype (cream, deep green, serif headings); consolidated into tokens in `app/globals.css`.
+- **Visual direction:** editorial poster style — brick red on cream, chunky Fraunces display type, DM Sans body text, pill buttons, poster-word image placeholders and minimal copy. Colours and type are tokens in `app/globals.css`. Fonts load from Google Fonts, which means each visitor’s browser contacts Google; self-host them before a study if that matters for your ethics application.
 - **Comparison is available in both study conditions** as a standard e-commerce feature; only the “Your preferences” row is assisted-only. Confirm with your supervisor.
 - **Producer-community copy** is written as an intention, with no partners, locations or percentages.
 

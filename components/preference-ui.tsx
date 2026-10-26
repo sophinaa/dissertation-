@@ -81,10 +81,7 @@ export function PreferenceSummary({ title = 'Your preferences' }: { title?: stri
           </li>
         ))}
       </ul>
-      <p className="hint">
-        Saved on this device for up to 30 days. Strict limits (ingredients to avoid, unscented only, a strict
-        budget) remove products; everything else changes the order.
-      </p>
+      <p className="hint">Saved on this device for 30 days.</p>
     </section>
   );
 }

@@ -216,8 +216,8 @@ function Questionnaire() {
           </h1>
           <p className="lede">
             {prefs
-              ? 'These answers shape your recommendations. Change any one of them — you don’t need to start again.'
-              : 'Check your answers, then see products that match.'}
+              ? 'Change any answer — no need to start again.'
+              : 'All good? Let’s see your matches.'}
           </p>
           <ReviewList
             prefs={normalisePreferences(withBudget(draft))}
@@ -248,9 +248,7 @@ function Questionnaire() {
               </>
             )}
           </div>
-          <p className="hint">
-            Saved only in this browser, for up to 30 days. We don’t ask for your name or any contact details.
-          </p>
+          <p className="hint">Saved only in this browser, for 30 days. No name or email needed.</p>
         </>
       ) : (
         <form
@@ -298,7 +296,7 @@ function Questionnaire() {
               <fieldset className="question" aria-describedby="goals-help">
                 <legend>What would you most like help with?</legend>
                 <p className="hint" id="goals-help">
-                  Choose up to {MAX_GOALS}. These describe what products are intended for — not medical treatment.
+                  Pick up to {MAX_GOALS}.
                 </p>
                 <div className="choices">
                   {goalOptions.map((g) => {
@@ -362,9 +360,8 @@ function Questionnaire() {
               <fieldset className="question" aria-describedby="exclude-help">
                 <legend>Are there any ingredients you want to avoid completely?</legend>
                 <p className="hint" id="exclude-help">
-                  Strict: products containing these are never recommended. Products whose full ingredient list
-                  isn’t confirmed are also left out, because we can’t check them. This uses the shop’s product
-                  data — if you have an allergy, always check the label as well.
+                  We’ll never recommend products with these — or products whose ingredients aren’t confirmed.
+                  Allergies? Always check the label too.
                 </p>
                 <div className="choices">
                   {EXCLUSION_OPTIONS.map((o) => (
@@ -391,7 +388,7 @@ function Questionnaire() {
               <fieldset className="question" aria-describedby="likes-help" aria-invalid={errors.likes ? true : undefined}>
                 <legend>Any ingredients you’d like to see?</legend>
                 <p className="hint" id="likes-help">
-                  A preference, not a requirement: products containing these move up the list.
+                  Nice to have — these move products up the list.
                 </p>
                 {errors.likes && <p className="error">{errors.likes}</p>}
                 <div className="choices columns">
@@ -419,7 +416,7 @@ function Questionnaire() {
               <RadioGroup
                 name="fragrance"
                 legend="How do you feel about scent?"
-                help="Some oils are scented with essential oils such as rose, lavender or tea tree. Plain oils can still have a faint natural smell."
+                help="Some oils are scented with essential oils, like rose or tea tree."
                 options={FRAGRANCE_OPTIONS}
                 value={draft.fragrance}
                 onChange={(fragrance) => set({ fragrance })}
@@ -523,8 +520,7 @@ function Questionnaire() {
           </div>
           {!editingOne && (
             <p className="hint">
-              Every question after the first is optional — you can leave any unanswered.{' '}
-              <Link href="/shop">Exit and browse all products</Link> (your answers so far are kept for this visit).
+              Everything after step 1 is optional. <Link href="/shop">Skip and browse instead</Link>
             </p>
           )}
         </form>

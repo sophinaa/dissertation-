@@ -65,14 +65,12 @@ export function SiteShell({ children }: { children: ReactNode }) {
         Skip to main content
       </a>
       <div className="prototype-bar">
-        <span>Prototype shop for a dissertation project</span>
-        <span>Demonstration products · no real orders or payments</span>
+        <span>Prototype · demo products · no real orders</span>
       </div>
       {study && <StudyBar />}
       <header className="site-header">
         <Link href="/" className="brand" onClick={close}>
           botanical &amp; you
-          <span>Natural oils for skin and hair</span>
         </Link>
         <button
           type="button"
@@ -156,10 +154,7 @@ export function SiteShell({ children }: { children: ReactNode }) {
       <footer className="site-footer">
         <div>
           <p className="brand small">botanical &amp; you</p>
-          <p>
-            A dissertation prototype. All products, prices and stock levels are demonstration content.
-            Nothing can be bought and no payment details are collected.
-          </p>
+          <p>A dissertation prototype. Products are demos; nothing can be bought.</p>
         </div>
         <ul>
           <li>

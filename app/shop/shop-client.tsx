@@ -1,6 +1,5 @@
 'use client';
 
-import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useState } from 'react';
 import { SlidersHorizontal, X } from 'lucide-react';
@@ -77,7 +76,6 @@ export function ShopClient() {
   return (
     <div className="page shop">
       <div className="page-head">
-        <p className="eyebrow">Shop</p>
         <h1>{title}</h1>
         <search>
         <form
@@ -93,7 +91,7 @@ export function ShopClient() {
               id="shop-search"
               type="search"
               value={query}
-              placeholder="Try “argan”, “scalp” or “unscented”"
+              placeholder="Search oils, ingredients…"
               onChange={(e) => {
                 setQuery(e.target.value);
                 if (e.target.value === '') update({ ...filters, q: '' });
@@ -204,7 +202,7 @@ export function ShopClient() {
                 {TAG_LABELS[tag]}
               </label>
             ))}
-            <p className="hint">Products whose ingredients aren’t confirmed are hidden when you use these.</p>
+            <p className="hint">Also hides products with unconfirmed ingredients.</p>
           </fieldset>
 
           <label className="option">
@@ -270,11 +268,6 @@ export function ShopClient() {
             </p>
           )}
 
-          {usePrefs && !filters.fit && (
-            <p className="hint">
-              Each product shows how it relates to <Link href="/preferences?return=summary">your saved preferences</Link>.
-            </p>
-          )}
 
           {shown.length ? (
             <div className="grid">

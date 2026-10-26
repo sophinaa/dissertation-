@@ -34,11 +34,8 @@ export function RecommendationsClient() {
     return (
       <div className="page narrow">
         <p className="eyebrow">Find my products</p>
-        <h1>Get suggestions that explain themselves</h1>
-        <p className="lede">
-          Answer a few optional questions — what you’re shopping for, ingredients to avoid, scent, texture and
-          budget. Every suggestion then shows which of your answers it matches, and any trade-offs.
-        </p>
+        <h1>Find your products</h1>
+        <p className="lede">Five quick questions. Every pick tells you why.</p>
         <p className="actions">
           <Link href="/preferences" className="btn btn-primary">
             Start — about two minutes
@@ -47,7 +44,7 @@ export function RecommendationsClient() {
             Browse all products instead
           </Link>
         </p>
-        <p className="hint">No account needed. Answers stay in this browser.</p>
+        <p className="hint">No account needed.</p>
       </div>
     );
   }
@@ -56,7 +53,6 @@ export function RecommendationsClient() {
 
   return (
     <div className="page recommendations">
-      <p className="eyebrow">Find my products</p>
       <h1>{recs.recommended.length ? 'Your recommendations' : 'Your results'}</h1>
       <UpdatedNotice />
       <PreferenceSummary />
@@ -106,9 +102,7 @@ export function RecommendationsClient() {
               <h2 id="top">
                 {recs.recommended.length === 1 ? 'One product matches' : `Top ${recs.recommended.length} matches`}
               </h2>
-              <p className="hint">
-                Ordered by how many of your answers each product matches. Ties go to the lower price.
-              </p>
+              <p className="hint">Best match first.</p>
               <ol className="rec-list">
                 {recs.recommended.map((fit, i) => (
                   <li key={fit.product.id}>
@@ -131,7 +125,7 @@ export function RecommendationsClient() {
           {others.length > 0 && (
             <section className="section" aria-labelledby="others">
               <h2 id="others">Also within your limits ({others.length})</h2>
-              <p className="hint">These fit your strict limits but match fewer of your preferences.</p>
+
               <div className="grid">
                 {others.map((fit) => (
                   <ProductCard key={fit.product.id} product={fit.product} fit={fit} />

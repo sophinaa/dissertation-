@@ -1,10 +1,9 @@
 'use client';
 
 import Link from 'next/link';
-import { Check, Droplet, Minus, Package, Plus, Scale, ShoppingBag } from 'lucide-react';
+import { Check, Minus, Plus, Scale, ShoppingBag } from 'lucide-react';
 import {
   AVAILABILITY_LABELS,
-  CATEGORY_LABELS,
   FRAGRANCE_LABELS,
   TEXTURE_LABELS,
   formatPrice,
@@ -15,13 +14,35 @@ import {
 import { headline, type ProductFit } from '@/lib/recommend.ts';
 import { MAX_COMPARE, useStore } from './store';
 
+/** A short display word for the poster-style placeholder (presentation only). */
+const POSTER_WORDS: Record<string, string> = {
+  'rose-facial-oil': 'Rose',
+  'rosehip-facial-oil': 'Rosehip',
+  'golden-jojoba-oil': 'Jojoba',
+  'pure-argan-oil': 'Argan',
+  'pure-argan-oil-15ml': 'Argan',
+  'rose-argan-night-oil': 'Night',
+  'face-oil-discovery-set': 'Trio',
+  'unscented-body-oil': 'Body',
+  'evening-body-oil': 'Evening',
+  'shea-body-butter': 'Shea',
+  'rocket-seed-hair-oil': 'Rocket',
+  'mixed-botanical-hair-oil': 'Blend',
+  'tea-tree-scalp-oil': 'Tea tree',
+  'rosemary-hair-oil': 'Rosemary',
+  'amla-hair-oil': 'Amla',
+  'pre-wash-hair-duo': 'Duo',
+};
+
 /** Honest placeholder: there are no real product photographs yet. */
 export function ProductImage({ product, large = false }: { product: Product; large?: boolean }) {
-  const Icon = product.category === 'set' ? Package : Droplet;
+  const word = POSTER_WORDS[product.id] ?? product.name.split(' ')[0];
   return (
     <div className={`product-image tone-${product.category}${large ? ' large' : ''}`}>
-      <Icon aria-hidden="true" size={large ? 56 : 34} strokeWidth={1.3} />
-      <span>No product photo yet</span>
+      <span className={`poster-word${word.length > 6 ? ' long' : ''}`} aria-hidden="true">
+        {word}
+      </span>
+      <span className="photo-note">Photo coming soon</span>
     </div>
   );
 }
@@ -143,7 +164,7 @@ export function FitSummary({ fit }: { fit: ProductFit }) {
   if (!fit.eligible) {
     return (
       <p className="fit fit-mismatch">
-        <strong>Doesn’t fit your preferences:</strong> {fit.reasons[0].text}
+        <strong>Not a fit:</strong> {fit.reasons[0].text}
       </p>
     );
   }
@@ -151,7 +172,7 @@ export function FitSummary({ fit }: { fit: ProductFit }) {
   return (
     <div className="fit">
       <p>
-        <strong>Why it’s here:</strong> {why.replace(/^Matches: /, '')}
+        <strong>Why:</strong> {why.replace(/^Matches: /, '')}
       </p>
       {tradeoff && <p className="fit-tradeoff">{tradeoff}</p>}
     </div>
@@ -239,23 +260,21 @@ export function ProductCard({
         <ProductImage product={product} />
       </Link>
       <div className="card-body">
-        <p className="card-meta">
-          {rank !== undefined && <span className="rank">#{rank}</span>}
-          {CATEGORY_LABELS[product.category]} · {productAreasLabel(product)}
-        </p>
+        {rank !== undefined && <span className="rank">#{rank}</span>}
         <Heading className="card-title">
           <Link href={href}>{product.name}</Link>
         </Heading>
         <p className="card-price">
-          <strong>{formatPrice(product.pricePence)}</strong> <span>{formatSize(product)}</span>
+          <strong>{formatPrice(product.pricePence)}</strong> <span>{formatSize(product)}</span>{' '}
+          <AvailabilityBadge product={product} />
         </p>
         <p className="card-summary">{product.summary}</p>
         <ul className="chips" aria-label="Product attributes">
+          <li>{productAreasLabel(product)}</li>
           <li>{product.fragrance ? FRAGRANCE_LABELS[product.fragrance] : 'Scent not specified'}</li>
           <li>{product.texture ? `${TEXTURE_LABELS[product.texture]} texture` : 'Texture not specified'}</li>
           {!product.ingredients && <li>Ingredients not confirmed</li>}
         </ul>
-        <AvailabilityBadge product={product} />
         {fit && <FitSummary fit={fit} />}
         <div className="card-actions">
           <AddToBasketButton product={product} className="btn btn-primary btn-small" />
@@ -269,8 +288,7 @@ export function ProductCard({
 export function DemoNotice({ compact = false }: { compact?: boolean }) {
   return (
     <p className={`demo-notice${compact ? ' compact' : ''}`}>
-      <strong>Demonstration product.</strong> Details, prices and stock are sample content for a
-      prototype and have not been verified.
+      <strong>Demo product.</strong> Details, price and stock are sample content, not verified.
     </p>
   );
 }
