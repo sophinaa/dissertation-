@@ -563,6 +563,51 @@ main:focus {
   padding: 4px 12px;
   font-size: 0.78rem;
 }
+.hero-help {
+  margin-top: var(--space-4);
+  color: var(--ink-muted);
+}
+.home-categories {
+  max-width: var(--max);
+  margin: var(--space-5) auto 0;
+  padding: var(--space-5) var(--gutter) 0;
+  border-top: 1px solid var(--line);
+}
+.home-categories ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-2) var(--space-5);
+}
+.home-categories a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  color: var(--ink);
+  text-decoration: none;
+  font-weight: 500;
+}
+.home-categories a:hover {
+  color: var(--green);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+.pref-line {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-4);
+  color: var(--ink-muted);
+  font-size: 0.94rem;
+}
+.pref-line .confirm legend {
+  float: left;
+  margin: 0 var(--space-2) 0 0;
+  font-size: 0.94rem;
+}
 .poster-title {
   font-size: clamp(2.4rem, 6vw, 4.4rem);
   line-height: 0.95;
@@ -1390,6 +1435,35 @@ legend {
   padding-top: var(--space-3);
 }
 
+/* ---------- Contact ---------- */
+.contact-list {
+  list-style: none;
+  padding: 0;
+  margin: var(--space-6) 0 0;
+  border-top: 2px solid var(--ink);
+}
+.contact-list li {
+  display: grid;
+  grid-template-columns: minmax(140px, 220px) 1fr;
+  gap: var(--space-4);
+  align-items: baseline;
+  padding: var(--space-5) 0;
+  border-bottom: 1px solid var(--line-strong);
+}
+.contact-list h2 {
+  margin: 0;
+  font-size: clamp(1.3rem, 2.4vw, 1.7rem);
+}
+.contact-list p {
+  margin: 0;
+}
+@media (max-width: 600px) {
+  .contact-list li {
+    grid-template-columns: 1fr;
+    gap: var(--space-2);
+  }
+}
+
 /* ---------- Product accordions ---------- */
 .accordions {
   margin-top: var(--space-7);
@@ -1801,8 +1875,13 @@ legend {
     width: 100%;
     order: 4;
   }
+  .header-actions {
+    flex-wrap: nowrap;
+  }
   .header-actions .btn {
     flex: 1;
+    padding: 7px 8px;
+    gap: 6px;
   }
   .personal {
     padding: var(--space-4);

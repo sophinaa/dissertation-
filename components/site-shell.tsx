@@ -168,6 +168,9 @@ export function SiteShell({ children }: { children: ReactNode }) {
           <li>
             <Link href="/about">About this prototype</Link>
           </li>
+          <li>
+            <Link href="/contact">Contact</Link>
+          </li>
         </ul>
       </footer>
       <div className="toast" aria-live="polite" aria-atomic="true">
