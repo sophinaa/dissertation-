@@ -14,7 +14,7 @@ npm install
 npm run dev          # local server (vinext / Vite)
 npm test             # unit tests: recommendations, finder, assistant grounding, catalogue, basket, study
 npm run typecheck    # tsc --noEmit
-npm run lint         # oxlint (pre-existing warnings remain in components/ui — see below)
+npm run lint         # oxlint
 npm run build        # production build
 ```
 
@@ -69,7 +69,7 @@ Accounts are optional: guests keep everything in the browser; signing in saves p
 
 ## Data and privacy
 
-No accounts, analytics or server-side storage. Preferences, basket, comparison and recently viewed live in `localStorage` (preferences expire after 30 days and can be reset). The assistant conversation is kept in `sessionStorage` only. Study sessions use a separate `sessionStorage` namespace that is wiped when a session starts or ends. Customer messages are not logged by the server. When the live assistant is enabled, the question, recent conversation, current/compared product IDs and a summary of the customer’s preferences are sent to Anthropic.
+No analytics. Guests need no account, and for them nothing is stored on the server: preferences, basket, comparison and recently viewed live in `localStorage` (preferences expire after 30 days and can be reset). Accounts are optional; signing in stores the email address, linked Google/Apple identifiers, hashed session tokens and the saved preferences in Cloudflare D1 (baskets stay in the browser). Sign-in codes and rate-limit counters are stored hashed and expire. Deleting the account removes its records. Sign-in emails are sent through Resend. The assistant conversation is kept in `sessionStorage` only. Study sessions use a separate `sessionStorage` namespace that is wiped when a session starts or ends. Customer messages are not logged by the server. When the live assistant is enabled, the question, recent conversation, current/compared product IDs and a summary of the customer’s preferences are sent to Anthropic.
 
 ## Provisional decisions (please review)
 
@@ -85,6 +85,5 @@ No accounts, analytics or server-side storage. Preferences, basket, comparison a
 
 - The live Claude path has not been run against the real API here (no credentials were available); error mapping is implemented and the offline path is tested.
 - Product data is illustrative; real formulations, prices, directions and warnings must replace it before customer use, and safety wording should be reviewed by someone qualified.
-- `npm run lint` still reports pre-existing errors in the generated `components/ui/*` primitives and `hooks/use-mobile.ts`, which were not modified. `dissertation-/` is an older nested copy of the project and is excluded from lint and type checks.
-- The starter install reported dependency audit advisories; no automatic upgrades were applied.
+- The starter install reported dependency audit advisories; no automatic upgrades were applied (vinext was upgraded separately from a 1.0 beta to 1.3.1 to fix a production-build bug that stopped buttons and links working).
 - Not a validated accessible or production-ready shop: keyboard, focus, contrast and mobile were checked in a headless browser, but no screen-reader or user testing has been done.

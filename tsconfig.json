@@ -27,5 +27,5 @@
     ".next/dev/types/**/*.ts",
     "**/*.mts"
   ],
-  "exclude": ["node_modules", "dissertation-"]
+  "exclude": ["node_modules"]
 }

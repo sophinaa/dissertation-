@@ -29,8 +29,7 @@
     "build/**",
     "dist/**",
     "coverage/**",
-    "next-env.d.ts",
-    "dissertation-/**"
+    "next-env.d.ts"
   ],
   "rules": {
     "no-array-constructor": "error",
