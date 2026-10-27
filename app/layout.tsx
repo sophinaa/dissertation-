@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from 'next';
+import { AccountProvider } from '@/components/account';
 import { SiteShell } from '@/components/site-shell';
 import { StoreProvider } from '@/components/store';
 import './globals.css';
@@ -38,7 +39,9 @@ export default function RootLayout({
       </head>
       <body>
         <StoreProvider>
-          <SiteShell>{children}</SiteShell>
+          <AccountProvider>
+            <SiteShell>{children}</SiteShell>
+          </AccountProvider>
         </StoreProvider>
       </body>
     </html>

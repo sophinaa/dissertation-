@@ -20,7 +20,8 @@ const localBindingConfig = {
         {
           binding: d1,
           database_name: 'site-creator-d1',
-          database_id: SITE_CREATOR_PLACEHOLDER_DATABASE_ID,
+          // Set D1_DATABASE_ID to your real database ID before deploying (see docs/DEPLOY.md).
+          database_id: process.env.D1_DATABASE_ID ?? SITE_CREATOR_PLACEHOLDER_DATABASE_ID,
         },
       ]
     : [],

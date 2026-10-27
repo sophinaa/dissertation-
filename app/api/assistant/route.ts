@@ -8,6 +8,7 @@
 // Customer messages are never logged.
 
 import Anthropic from '@anthropic-ai/sdk';
+import { setting } from '@/lib/auth/server.ts';
 import { offlineAnswer } from '@/lib/assistant/offline.ts';
 import {
   OUTPUT_SCHEMA,
@@ -42,13 +43,13 @@ export async function POST(request: Request) {
     );
   }
 
-  const apiKey = process.env.ANTHROPIC_API_KEY;
+  const apiKey = setting('ANTHROPIC_API_KEY');
   if (!apiKey) {
     const reply: AssistantReply = { mode: 'offline', rejectedIds: 0, ...offlineAnswer(parsed) };
     return Response.json(reply);
   }
 
-  const model = process.env.ASSISTANT_MODEL || DEFAULT_MODEL;
+  const model = setting('ASSISTANT_MODEL') || DEFAULT_MODEL;
   const client = new Anthropic({ apiKey, timeout: TIMEOUT_MS, maxRetries: 1 });
   const context = buildContext(parsed.context);
   const messages: Anthropic.Beta.BetaMessageParam[] = parsed.messages.map((m, i) =>
@@ -129,5 +130,5 @@ export async function POST(request: Request) {
 
 /** Lets the interface label the assistant honestly before the first question. */
 export function GET() {
-  return Response.json({ mode: process.env.ANTHROPIC_API_KEY ? 'live' : 'offline' });
+  return Response.json({ mode: setting('ANTHROPIC_API_KEY') ? 'live' : 'offline' });
 }

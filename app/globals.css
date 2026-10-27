@@ -411,6 +411,23 @@ code {
   gap: var(--space-2);
   flex-wrap: wrap;
 }
+/* Person icon only; the visible label is kept for screen readers. */
+.account-link {
+  width: 44px;
+  padding: 0 !important;
+}
+.account-link .account-label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+}
+.account-link[aria-current='page'] {
+  border-color: var(--green);
+  background: var(--sage-100);
+}
 .count {
   background: var(--sage-200);
   border-radius: 999px;
@@ -1078,6 +1095,7 @@ legend {
   font-weight: 600;
 }
 input[type='text'],
+input[type='email'],
 input[type='search'],
 input[type='number'],
 input:not([type]),
@@ -1449,6 +1467,55 @@ legend {
   }
 }
 
+/* ---------- Accounts ---------- */
+.signin-box {
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  padding: var(--space-6);
+  margin: var(--space-5) 0;
+  max-width: 520px;
+}
+.signin-box form .btn,
+.oauth-buttons .btn {
+  width: 100%;
+}
+.oauth-buttons {
+  display: grid;
+  gap: var(--space-3);
+}
+.divider {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  color: var(--ink-muted);
+  font-size: 0.9rem;
+  margin: var(--space-5) 0;
+}
+.divider::before,
+.divider::after {
+  content: '';
+  flex: 1;
+  border-top: 1px solid var(--line-strong);
+}
+#signin-code {
+  font-size: 1.6rem;
+  letter-spacing: 0.4em;
+  text-align: center;
+  max-width: 260px;
+}
+.dev-code code {
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+.danger-zone {
+  margin-top: var(--space-7);
+  border-top: 1px solid var(--line-strong);
+  padding-top: var(--space-5);
+}
+.danger-zone h2 {
+  font-size: 1.4rem;
+}
+
 /* ---------- Product accordions ---------- */
 .accordions {
   margin-top: var(--space-7);
@@ -1791,6 +1858,16 @@ legend {
 }
 
 /* ---------- Responsive ---------- */
+@media (max-width: 1400px) {
+  .action-label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+  }
+}
 @media (max-width: 1180px) {
   .site-header nav {
     order: 3;
@@ -1862,6 +1939,15 @@ legend {
   }
   .header-actions {
     flex-wrap: nowrap;
+  }
+  .header-actions {
+    gap: 6px;
+  }
+  .header-actions .btn {
+    padding: 7px 6px;
+  }
+  .account-link {
+    flex: 0 0 44px !important;
   }
   .header-actions .btn {
     flex: 1;

@@ -45,7 +45,8 @@ The key is read only in `app/api/assistant/route.ts` (server). It is never sent 
 | Comparison (up to 3), price per 100 ml/g, preference row, “no overall best” | Functional |
 | Basket (quantities, totals, persistence, preference-mismatch notes) | Functional |
 | Shopping assistant | Live Claude integration implemented but **not exercised with real credentials**; offline rule-based helper functional |
-| Checkout, payment, accounts, order history, admin | **Not implemented** (basket says checkout is unavailable) |
+| Optional accounts: email code, Google or Apple sign-in; preferences sync across devices; sign out; delete account | Functional for email codes (tested locally); Google/Apple implemented, need your credentials to test: see [docs/DEPLOY.md](docs/DEPLOY.md) |
+| Checkout, payment, order history, admin | **Not implemented** (basket says checkout is unavailable) |
 | Conventional vs assisted study conditions and local event log (`/study`) | Functional; requires ethics/consent decisions before real use |
 
 ## Architecture
@@ -62,7 +63,11 @@ The key is read only in `app/api/assistant/route.ts` (server). It is never sent 
 - `components/store.tsx` — shared client state (preferences, basket, comparison, recently viewed, assistant thread, study session) and persistence.
 - `app/*` — routes: `/`, `/shop`, `/products/[id]`, `/preferences`, `/recommendations`, `/finder`, `/compare`, `/basket`, `/about`, `/study` (unlisted).
 
-### Data and privacy
+### Accounts and publishing
+
+Accounts are optional: guests keep everything in the browser; signing in saves preferences to the account. Setup, secrets and the security design are in [docs/DEPLOY.md](docs/DEPLOY.md). Code: `lib/auth/`, `app/api/auth/`, `app/api/account/`, `components/account.tsx`.
+
+## Data and privacy
 
 No accounts, analytics or server-side storage. Preferences, basket, comparison and recently viewed live in `localStorage` (preferences expire after 30 days and can be reset). The assistant conversation is kept in `sessionStorage` only. Study sessions use a separate `sessionStorage` namespace that is wiped when a session starts or ends. Customer messages are not logged by the server. When the live assistant is enabled, the question, recent conversation, current/compared product IDs and a summary of the customer’s preferences are sent to Anthropic.
 

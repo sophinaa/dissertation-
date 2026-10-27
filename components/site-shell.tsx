@@ -3,8 +3,9 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useState, type ReactNode } from 'react';
-import { Menu, MessageCircle, Scale, ShoppingBag, X } from 'lucide-react';
+import { Menu, MessageCircle, Scale, ShoppingBag, UserRound, X } from 'lucide-react';
 import { tasksFor } from '@/lib/study.ts';
+import { useAccount } from './account';
 import { AssistantPanel } from './assistant-panel';
 import { useStore } from './store';
 
@@ -49,6 +50,8 @@ function StudyBar() {
 
 export function SiteShell({ children }: { children: ReactNode }) {
   const { basket, compare, features, openAssistant, announcement, track, hydrated, study } = useStore();
+  const account = useAccount();
+  const showAccount = !study && account.ready && !!account.methods?.enabled;
   const [menuOpen, setMenuOpen] = useState(false);
   const pathname = usePathname();
   const itemCount = basket.reduce((n, l) => n + l.qty, 0);
@@ -135,17 +138,28 @@ export function SiteShell({ children }: { children: ReactNode }) {
             </button>
           )}
           <Link href="/compare" className="btn btn-quiet btn-small" onClick={close}>
-            <Scale size={16} aria-hidden="true" /> Compare
+            <Scale size={16} aria-hidden="true" /> <span className="action-label">Compare</span>
             <span className="count" aria-label={`${compare.length} selected`}>
               {compare.length}
             </span>
           </Link>
           <Link href="/basket" className="btn btn-quiet btn-small" onClick={close}>
-            <ShoppingBag size={16} aria-hidden="true" /> Basket
+            <ShoppingBag size={16} aria-hidden="true" /> <span className="action-label">Basket</span>
             <span className="count" aria-label={`${itemCount} items`}>
               {itemCount}
             </span>
           </Link>
+          {showAccount && (
+            <Link
+              href={account.user ? '/account' : '/signin'}
+              className="btn btn-quiet btn-small account-link"
+              onClick={close}
+              aria-current={pathname === '/account' || pathname === '/signin' ? 'page' : undefined}
+            >
+              <UserRound size={16} aria-hidden="true" />
+              <span className="account-label">{account.user ? 'Account' : 'Sign in'}</span>
+            </Link>
+          )}
         </div>
       </header>
       <main id="main" tabIndex={-1}>
@@ -170,6 +184,9 @@ export function SiteShell({ children }: { children: ReactNode }) {
           </li>
           <li>
             <Link href="/contact">Contact</Link>
+          </li>
+          <li>
+            <Link href="/privacy">Privacy</Link>
           </li>
         </ul>
       </footer>

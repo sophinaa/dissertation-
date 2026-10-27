@@ -77,6 +77,8 @@ interface StoreValue {
   lastPrefsChange: { at: number; fields: (keyof Preferences)[] } | null;
   savePrefs: (next: Preferences, source: 'questionnaire' | 'edit' | 'finder') => void;
   resetPrefs: () => void;
+  /** Replace preferences without an "updated" notice, e.g. when an account's saved copy loads. */
+  loadPrefs: (prefs: Preferences | null) => void;
   basket: BasketLine[];
   addToBasket: (id: string, qty?: number) => void;
   setQty: (id: string, qty: number) => void;
@@ -272,6 +274,11 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     announce('Your preferences have been cleared. Products are no longer personalised.');
   }, [announce, track]);
 
+  const loadPrefs = useCallback((next: Preferences | null) => {
+    const normalised = next ? normalisePreferences(next) : null;
+    setState((s) => ({ ...s, prefs: normalised && hasAnswers(normalised) ? normalised : null }));
+  }, []);
+
   const addToBasket = useCallback<StoreValue['addToBasket']>(
     (id, qty = 1) => {
       if (!isProductId(id)) return;
@@ -367,6 +374,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     lastPrefsChange,
     savePrefs,
     resetPrefs,
+    loadPrefs,
     basket: state.basket,
     addToBasket,
     setQty,

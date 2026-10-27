@@ -1,0 +1,24 @@
+# Copy to .dev.vars (git-ignored) for local development. Never commit real values.
+# Without these, local dev still works: email codes are shown on screen and
+# Google/Apple buttons are hidden.
+
+# 48+ random characters, e.g. `openssl rand -base64 48`
+AUTH_SECRET=
+
+# Email codes via https://resend.com
+RESEND_API_KEY=
+EMAIL_FROM=Botanical & You <signin@your-domain.com>
+
+# Sign in with Google (Google Cloud Console > Credentials > OAuth client ID, Web application)
+GOOGLE_CLIENT_ID=
+GOOGLE_CLIENT_SECRET=
+
+# Sign in with Apple (Apple Developer > Identifiers > Services ID, and a Sign in with Apple key)
+APPLE_CLIENT_ID=
+APPLE_TEAM_ID=
+APPLE_KEY_ID=
+# Paste the .p8 file contents on one line, with \n for line breaks
+APPLE_PRIVATE_KEY=
+
+# Optional: live AI assistant
+ANTHROPIC_API_KEY=
