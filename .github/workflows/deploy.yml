@@ -1,0 +1,61 @@
+name: Deploy public prototype
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: cloudflare-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      D1_DATABASE_ID: 86da30b0-a5d8-4a2a-afb2-018b5b6715f9
+      CLOUDFLARE_ACCOUNT_ID: ce19b04b90a03357f83037ced9b3ee33
+      WRANGLER_SEND_METRICS: 'false'
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.20.0'
+          cache: npm
+      - name: Check deployment credentials
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        run: |
+          if [ -z "$CLOUDFLARE_API_TOKEN" ]; then
+            echo '::error::Add the CLOUDFLARE_API_TOKEN repository secret before deploying.'
+            exit 1
+          fi
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run build
+      - name: Check production database binding
+        run: |
+          node --input-type=module <<'JS'
+          import { readFileSync } from 'node:fs';
+          const config = JSON.parse(readFileSync('dist/server/wrangler.json', 'utf8'));
+          const db = config.d1_databases?.find((binding) => binding.binding === 'DB');
+          if (config.name !== 'dissertation' || !config.workers_dev || db?.database_id !== process.env.D1_DATABASE_ID) {
+            throw new Error('The generated Worker configuration does not match production.');
+          }
+          JS
+      - name: Deploy to Cloudflare
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        run: npx wrangler deploy --config dist/server/wrangler.json
+      - name: Verify public site
+        run: |
+          for path in / /shop /products/rose-facial-oil /basket /preferences /finder /api/assistant /brand/botanical-and-you-retro.png; do
+            curl --fail --silent --show-error --retry 5 --retry-delay 3 --retry-all-errors --max-time 30 --output /dev/null "https://dissertation.sophinaa.workers.dev${path}"
+          done
+          echo 'Public site: https://dissertation.sophinaa.workers.dev' >> "$GITHUB_STEP_SUMMARY"

@@ -1,6 +1,37 @@
 # Publishing on Cloudflare
 
-This publishes the site at a public `*.workers.dev` link (or your own domain) with accounts stored in Cloudflare D1. Nothing here has been run on your behalf: each step uses your own accounts.
+This publishes the site at a public `*.workers.dev` link (or your own domain) with accounts stored in Cloudflare D1.
+
+## Current public deployment
+
+Public URL: **https://dissertation.sophinaa.workers.dev**
+
+Deployed and verified on 27 October 2026 using the local `dissertation-prototype` checkout. Worker: `dissertation`. Existing D1 database: `dissertation-accounts`, ID `86da30b0-a5d8-4a2a-afb2-018b5b6715f9`. The database was reused without deleting or resetting data. No R2 or other resource bindings are required.
+
+To redeploy this project:
+
+```sh
+D1_DATABASE_ID=86da30b0-a5d8-4a2a-afb2-018b5b6715f9 npm run build
+npx wrangler deploy --config dist/server/wrangler.json
+```
+
+`vite.config.ts` explicitly enables `workers_dev`. The `sophinaa.workers.dev` account subdomain is registered. The generated Worker configuration in `dist/server/wrangler.json` must contain the real database ID; do not deploy a build containing `YOUR_DATABASE_ID` or the placeholder UUID.
+
+Verification covered the public homepage, shop and filtered shop, product page, basket, comparison, preferences, finder, recommendations, about and sign-in routes; the stylesheet, scripts and all 16 product images; and a real offline-assistant response. Guest add-to-basket and basket persistence worked in the public browser. All 51 tests, TypeScript and the production build passed.
+
+Existing email sign-in configuration was preserved and its form is available; email delivery was not tested. Google and Apple sign-in and live AI are not configured. The offline assistant works without an AI key. No secret values are stored in this document or the repository.
+
+## Automatic deployment through GitHub
+
+The workflow `.github/workflows/deploy.yml` deploys pushes to `main`, or a manual **Run workflow** from GitHub's Actions tab. It installs the locked dependencies, runs TypeScript and tests, builds with the existing D1 ID, checks the generated binding, deploys using the generated Worker configuration, then checks the public routes. The account and database IDs in the workflow are identifiers, not credentials. Existing Worker secrets and database contents are preserved.
+
+One-time activation:
+
+1. In Cloudflare's **Account API tokens**, create an **Edit Cloudflare Workers** token scoped to this account (or Workers Editor access to the existing `dissertation` Worker). See [Cloudflare's GitHub Actions guide](https://developers.cloudflare.com/workers/ci-cd/external-cicd/github-actions/).
+2. In [repository Actions secrets](https://github.com/sophinaa/dissertation-/settings/secrets/actions), choose **New repository secret**, name it `CLOUDFLARE_API_TOKEN`, and paste the token as its value. Do not put the token in a source file or chat.
+3. Commit and push the workflow, current `vite.config.ts`, and consistent package lockfile to `main`. Check **Actions → Deploy public prototype** for the result. Until the workflow is pushed and the secret is present, automatic deployment is not active.
+
+The GitHub CLI can be authenticated on the Mac with `gh auth login --hostname github.com --git-protocol https --web --scopes workflow`. The workflow scope permits pushing the GitHub Actions file. The existing `wrangler login` session does not authenticate GitHub Actions.
 
 ## 1. Cloudflare account and database (required)
 
@@ -8,6 +39,8 @@ This publishes the site at a public `*.workers.dev` link (or your own domain) wi
 npx wrangler login                      # opens the browser to sign in to Cloudflare
 npx wrangler d1 create dissertation-accounts
 ```
+
+For this account the database already exists: use `npx wrangler d1 list --json` to retrieve its ID instead of creating, deleting or resetting it.
 
 Copy the `database_id` it prints. The schema is created automatically on first use; to create it up front instead:
 
@@ -21,7 +54,7 @@ npx wrangler d1 execute dissertation-accounts --remote --file=migrations/0001_ac
 D1_DATABASE_ID=<your-database-id> npm run build
 ```
 
-## 3. Secrets (required: AUTH_SECRET)
+## 3. Secrets (AUTH_SECRET is required only for accounts)
 
 Secrets are stored encrypted by Cloudflare and never appear in the code or the browser.
 

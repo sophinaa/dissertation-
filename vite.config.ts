@@ -15,6 +15,7 @@ const isCodexSeatbeltSandbox = process.env.CODEX_SANDBOX === 'seatbelt';
 const localBindingConfig = {
   // Worker name: becomes https://<name>.<subdomain>.workers.dev when deployed.
   name: process.env.WORKER_NAME ?? 'dissertation',
+  workers_dev: true,
   main: 'vinext/server/fetch-handler',
   compatibility_flags: ['nodejs_compat'],
   d1_databases: d1
