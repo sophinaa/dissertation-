@@ -19,7 +19,7 @@ function suggestionsFor(productName: string | null, hasPrefs: boolean): string[]
       'Is there a cheaper alternative?',
     ];
   return [
-    hasPrefs ? 'Where should I start?' : 'I’m new to oils — where should I start?',
+    hasPrefs ? 'Where should I start?' : 'I’m new to oils. Where should I start?',
     'Show me hair oils under £20',
     'Which products contain essential oils?',
     'What’s the difference between Pure Argan Oil and Golden Jojoba Oil?',
@@ -140,7 +140,7 @@ export function AssistantPanel() {
           <SheetTitle className="assistant-title">Shopping assistant</SheetTitle>
           <SheetDescription className="assistant-mode">
             {configured === 'offline'
-              ? 'Offline catalogue helper — rule-based, not AI. Live AI isn’t set up on this server.'
+              ? 'Offline catalogue helper: rule-based, not AI. Live AI isn’t set up on this server.'
               : configured === 'live'
                 ? 'AI assistant (Claude). Answers use only this shop’s catalogue and may still contain mistakes.'
                 : 'Answers use only this shop’s catalogue information.'}

@@ -188,9 +188,9 @@ export function ShopClient() {
               onChange={(e) => update({ ...filters, texture: (e.target.value || null) as Filters['texture'] })}
             >
               <option value="">Any</option>
-              <option value="light">Light — absorbs quickly</option>
+              <option value="light">Light (absorbs quickly)</option>
               <option value="medium">Medium</option>
-              <option value="rich">Rich — thick, slow to absorb</option>
+              <option value="rich">Rich (thick, slow to absorb)</option>
             </select>
           </div>
 
@@ -249,7 +249,7 @@ export function ShopClient() {
                   <li key={chip.key}>
                     <button type="button" onClick={() => update(chip.without)}>
                       {chip.label} <X size={13} aria-hidden="true" />
-                      <span className="sr-only"> — remove</span>
+                      <span className="sr-only">, remove</span>
                     </button>
                   </li>
                 ))}

@@ -197,7 +197,7 @@ export function FinderClient() {
                 >
                   Save to my preferences
                 </button>
-                <span className="hint">Or do nothing — they’ll only apply to this search.</span>
+                <span className="hint">Or do nothing: they’ll only apply to this search.</span>
               </p>
             </section>
           )}

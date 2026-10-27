@@ -44,7 +44,7 @@ function differences(products: Product[]): string[] {
   const sameIngredients =
     products.every((p) => p.ingredients) &&
     new Set(products.map((p) => [...p.ingredients!].sort().join())).size === 1;
-  if (sameIngredients) notes.push('They have the same ingredients — the difference is size and price.');
+  if (sameIngredients) notes.push('They have the same ingredients. The difference is size and price.');
   if (products.some((p) => !p.ingredients)) notes.push('At least one product’s ingredients aren’t confirmed.');
   return notes;
 }
@@ -132,7 +132,7 @@ export function CompareClient() {
               <li key={d}>{d}</li>
             ))}
           </ul>
-          <p className="hint">There’s no overall “best” — it depends which of these matter to you.</p>
+          <p className="hint">There’s no overall “best”. It depends which of these matter to you.</p>
         </section>
       )}
 

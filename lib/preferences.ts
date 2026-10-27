@@ -155,7 +155,7 @@ export const FRAGRANCE_OPTIONS: {
 }[] = [
   {
     value: 'unscented-only',
-    label: 'No added scent — only show me unscented products',
+    label: 'No added scent: only show me unscented products',
     hint: 'Products with essential oils or unconfirmed scent are left out',
   },
   {

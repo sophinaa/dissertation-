@@ -151,7 +151,7 @@ export function ProductClient({ id }: { id: string }) {
             <dt>Texture</dt>
             <dd>
               {product.texture
-                ? `${TEXTURE_LABELS[product.texture]}${product.texture !== 'varies' ? ` — ${TEXTURE_HELP[product.texture]}` : ''}`
+                ? `${TEXTURE_LABELS[product.texture]}${product.texture !== 'varies' ? `: ${TEXTURE_HELP[product.texture]}` : ''}`
                 : NOT_SPECIFIED}
             </dd>
             <dt>Intended for</dt>
@@ -196,7 +196,7 @@ export function ProductClient({ id }: { id: string }) {
               )}
             </>
           ) : (
-            <p className="notice">Not confirmed yet — so we can’t check it against ingredients you avoid.</p>
+            <p className="notice">Not confirmed yet, so we can’t check it against ingredients you avoid.</p>
           )}
         </details>
 

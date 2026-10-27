@@ -46,7 +46,7 @@ export function HomeClient() {
           {/* oxlint-disable-next-line nextjs/no-img-element -- static local image; next/image adds no optimisation here */}
           <img
             src="/wellness-hero.jpg"
-            alt="Amber glass oil bottles with fresh herbs in soft sunlight — a concept illustration, not the actual products"
+            alt="Amber glass oil bottles with fresh herbs in soft sunlight. A concept illustration, not the actual products"
             width={1400}
             height={933}
           />

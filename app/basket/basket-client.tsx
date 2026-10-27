@@ -51,7 +51,7 @@ export function BasketClient() {
                 )}
                 {fit && !fit.eligible && (
                   <p className="fit fit-mismatch">
-                    <strong>Note:</strong> this no longer fits your saved preferences — {fit.reasons[0].text} It’s
+                    <strong>Note:</strong> this no longer fits your saved preferences. {fit.reasons[0].text} It’s
                     still in your basket; remove it if you no longer want it.
                   </p>
                 )}

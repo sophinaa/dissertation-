@@ -216,7 +216,7 @@ function Questionnaire() {
           </h1>
           <p className="lede">
             {prefs
-              ? 'Change any answer — no need to start again.'
+              ? 'Change any answer. No need to start again.'
               : 'All good? Let’s see your matches.'}
           </p>
           <ReviewList
@@ -360,7 +360,7 @@ function Questionnaire() {
               <fieldset className="question" aria-describedby="exclude-help">
                 <legend>Are there any ingredients you want to avoid completely?</legend>
                 <p className="hint" id="exclude-help">
-                  We’ll never recommend products with these — or products whose ingredients aren’t confirmed.
+                  We’ll never recommend products with these, or products whose ingredients aren’t confirmed.
                   Allergies? Always check the label too.
                 </p>
                 <div className="choices">
@@ -388,7 +388,7 @@ function Questionnaire() {
               <fieldset className="question" aria-describedby="likes-help" aria-invalid={errors.likes ? true : undefined}>
                 <legend>Any ingredients you’d like to see?</legend>
                 <p className="hint" id="likes-help">
-                  Nice to have — these move products up the list.
+                  Nice to have: these move products up the list.
                 </p>
                 {errors.likes && <p className="error">{errors.likes}</p>}
                 <div className="choices columns">

@@ -34,7 +34,7 @@ export function ContactClient() {
         </li>
         <li>
           <h2>Orders</h2>
-          <p className="muted">This is a prototype — no orders can be placed yet.</p>
+          <p className="muted">This is a prototype, so no orders can be placed yet.</p>
         </li>
       </ul>
     </div>

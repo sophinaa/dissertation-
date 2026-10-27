@@ -305,7 +305,7 @@ export const PRODUCTS: Product[] = [
   },
   {
     id: 'pure-argan-oil-15ml',
-    name: 'Pure Argan Oil — Travel Size',
+    name: 'Pure Argan Oil (Travel Size)',
     category: 'multi-use-oil',
     areas: ['skin', 'hair'],
     summary: 'The same single-ingredient argan oil in a 15 ml bottle.',
@@ -359,7 +359,7 @@ export const PRODUCTS: Product[] = [
     name: 'Face Oil Discovery Set',
     category: 'set',
     areas: ['skin'],
-    summary: 'Three 10 ml face oils — jojoba, rosehip and argan — to try side by side.',
+    summary: 'Three 10 ml face oils (jojoba, rosehip and argan) to try side by side.',
     description:
       'Three small bottles of single-ingredient oils, so you can compare how each one feels before choosing a full size. None contains added scent.',
     pricePence: 1600,

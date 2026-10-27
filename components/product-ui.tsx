@@ -18,10 +18,11 @@ import { MAX_COMPARE, useStore } from './store';
 export function ProductImage({ product, large = false }: { product: Product; large?: boolean }) {
   return (
     <div className={`product-image tone-${product.category}${large ? ' large' : ''}`}>
+      {/* oxlint-disable-next-line nextjs/no-img-element -- small local SVGs; next/image adds no optimisation here */}
       <img
         className="product-placeholder"
         src={`/products/${product.id}.svg`}
-        alt={`${product.name} — placeholder illustration`}
+        alt={`${product.name}, placeholder illustration`}
         width={600}
         height={450}
         loading={large ? 'eager' : 'lazy'}

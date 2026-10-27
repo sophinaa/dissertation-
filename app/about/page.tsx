@@ -16,8 +16,8 @@ export default function AboutPage() {
       <section aria-labelledby="question">
         <h2 id="question">The research question</h2>
         <p>
-          How does a connected personalised experience — a preference questionnaire, explained
-          recommendations, a guided finder and a catalogue-grounded assistant — affect how people discover,
+          How does a connected personalised experience (a preference questionnaire, explained
+          recommendations, a guided finder and a catalogue-grounded assistant) affect how people discover,
           understand and choose products, compared with conventional browsing, search and filtering of the same
           catalogue? This has not yet been evaluated, and no claim is made that either approach is better.
         </p>

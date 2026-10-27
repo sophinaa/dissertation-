@@ -38,7 +38,7 @@ export function RecommendationsClient() {
         <p className="lede">Five quick questions. Every pick tells you why.</p>
         <p className="actions">
           <Link href="/preferences" className="btn btn-primary">
-            Start — about two minutes
+            Start (about two minutes)
           </Link>
           <Link href="/shop" className="btn btn-secondary">
             Browse all products instead
@@ -86,7 +86,7 @@ export function RecommendationsClient() {
         <section className="section" aria-labelledby="within">
           <h2 id="within">{recs.ranked.length} products fit your limits</h2>
           <p className="notice">
-            You’ve set limits but no goals, types or likes, so these aren’t ranked for you — they’re in the
+            You’ve set limits but no goals, types or likes, so these aren’t ranked for you. They’re in the
             shop’s standard order. <Link href={editHref('goals')}>Add a goal</Link> to get ranked suggestions.
           </p>
           <div className="grid">
@@ -144,7 +144,7 @@ export function RecommendationsClient() {
           <ul>
             {recs.excluded.map((fit) => (
               <li key={fit.product.id}>
-                <Link href={`/products/${fit.product.id}`}>{fit.product.name}</Link> — {fit.reasons.map((r) => r.text).join(' ')}
+                <Link href={`/products/${fit.product.id}`}>{fit.product.name}</Link>: {fit.reasons.map((r) => r.text).join(' ')}
               </li>
             ))}
           </ul>

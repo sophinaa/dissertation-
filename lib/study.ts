@@ -17,8 +17,8 @@ export function featuresFor(condition: Condition | null): Features {
 }
 
 export const CONDITION_LABELS: Record<Condition, string> = {
-  conventional: 'Conventional — browse, search and filter only',
-  assisted: 'Assisted — preferences, recommendations, finder and assistant',
+  conventional: 'Conventional: browse, search and filter only',
+  assisted: 'Assisted: preferences, recommendations, finder and assistant',
 };
 
 export interface StudyTask {

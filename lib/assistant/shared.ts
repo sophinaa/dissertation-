@@ -141,7 +141,7 @@ export function productRecord(p: Product) {
     description: p.description,
     ingredients: p.ingredients
       ? p.ingredients.map((i) => `${INGREDIENTS[i].name} (${INGREDIENTS[i].inci})`)
-      : `${NOT_SPECIFIED} — full ingredient list not yet confirmed`,
+      : `${NOT_SPECIFIED} (full ingredient list not yet confirmed)`,
     ingredientGroups: p.ingredients
       ? [
           ...new Set(
@@ -286,6 +286,7 @@ Boundaries:
 
 Style:
 - Be concise: usually under 120 words. Use short paragraphs or "• " bullet lines.
+- Do not use em dashes; use full stops, commas or colons instead.
 - Refer to products by their exact catalogue name, and list the IDs of every product you mention in product_ids (most relevant first, at most ${MAX_PRODUCT_LINKS}).
 - If the question is ambiguous, ask one short clarifying question and set needs_clarification to true.
 - Prices are in GBP. Budgets are per product unless the customer says otherwise.`;

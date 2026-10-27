@@ -31,7 +31,7 @@ export function StudyClient() {
       <h1>Study session</h1>
       <p className="notice">
         For the researcher only. This page isn’t linked from the shop. Before real participants take part, confirm
-        consent, ethics approval and data handling — see <code>docs/EVALUATION.md</code>.
+        consent, ethics approval and data handling. See <code>docs/EVALUATION.md</code>.
       </p>
 
       {study ? (
@@ -108,7 +108,7 @@ export function StudyClient() {
           </div>
           <label className="option">
             <input type="checkbox" checked={record} onChange={() => setRecord((r) => !r)} />
-            Record task events in this browser (page views, product IDs, counts — never typed text)
+            Record task events in this browser (page views, product IDs, counts, never typed text)
           </label>
           <p className="hint">
             Starting a session clears any previous study data in this tab. The participant’s normal browsing data is

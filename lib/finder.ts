@@ -246,7 +246,7 @@ function optionsFor(field: FinderField, products: Product[]): FinderOption[] {
       return [
         {
           value: 'unscented-only',
-          label: 'Yes — no added scent',
+          label: 'Yes, no added scent',
           count: unscented,
         },
         {

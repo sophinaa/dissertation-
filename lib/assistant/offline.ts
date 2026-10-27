@@ -61,8 +61,8 @@ function normalise(text: string): string {
 
 const ALIASES: [Product, string[]][] = PRODUCTS.map((p) => {
   const full = normalise(p.name);
-  // Variants such as "Pure Argan Oil — Travel Size" must not claim the base name.
-  const aliases = full.includes(' — ')
+  // Variants such as "Pure Argan Oil (Travel Size)" must not claim the base name.
+  const aliases = full.includes('(travel size)')
     ? [full, 'travel size', 'travel']
     : [full, full.replace(/ oil$/, '')];
   if (p.category === 'set') aliases.push(full.replace(/^(face oil |pre-wash )/, ''));
@@ -181,7 +181,7 @@ function compareAnswer(products: Product[], prefs: Preferences | null): Reply {
     ];
     if (prefs) {
       const fit = evaluateProduct(p, prefs);
-      parts.push(fit.eligible ? headline(fit).why : `doesn’t fit your limits — ${fit.reasons[0].text}`);
+      parts.push(fit.eligible ? headline(fit).why : `doesn’t fit your limits: ${fit.reasons[0].text}`);
     }
     return `${p.name}: ${parts.join('; ')}`;
   });
@@ -189,7 +189,7 @@ function compareAnswer(products: Product[], prefs: Preferences | null): Reply {
   const note =
     units.size > 1
       ? 'Prices per 100 aren’t directly comparable because one is sold by weight and one by volume.'
-      : 'The catalogue doesn’t say one is better overall — it depends on which of these differences matter to you.';
+      : 'The catalogue doesn’t say one is better overall. It depends on which of these differences matter to you.';
   return {
     answer: `${list(lines)}\n\n${note} You can see them side by side on the Compare page.`,
     productIds: products.map((p) => p.id),
@@ -229,7 +229,7 @@ export function offlineAnswer(req: AssistantRequest): Reply {
 
   if (UNSUPPORTED.test(t)) {
     return {
-      answer: `${UNKNOWN} The catalogue covers ingredients, scent, texture, size, price, usage, warnings and stock status${targets.length ? ` — I can tell you any of those for ${targets.map((p) => p.name).join(' or ')}` : ''}.`,
+      answer: `${UNKNOWN} The catalogue covers ingredients, scent, texture, size, price, usage, warnings and stock status${targets.length ? `. I can tell you any of those for ${targets.map((p) => p.name).join(' or ')}` : ''}.`,
       productIds: targets.map((p) => p.id),
     };
   }
@@ -301,7 +301,7 @@ export function offlineAnswer(req: AssistantRequest): Reply {
       };
     return {
       answer: `Alternatives to ${base.name}${prefs ? ' that fit your preferences' : ''}:\n${list(
-        pool.map((p) => `${link(p)} — ${p.summary}`),
+        pool.map((p) => `${link(p)}: ${p.summary}`),
       )}`,
       productIds: pool.map((p) => p.id),
     };
@@ -372,7 +372,7 @@ export function offlineAnswer(req: AssistantRequest): Reply {
         productIds: [],
       };
     return {
-      answer: `Based on your preferences:\n${list(top.map((f) => `${link(f.product)} — ${headline(f).why}`))}`,
+      answer: `Based on your preferences:\n${list(top.map((f) => `${link(f.product)}: ${headline(f).why}`))}`,
       productIds: top.map((f) => f.product.id),
     };
   }
@@ -381,7 +381,7 @@ export function offlineAnswer(req: AssistantRequest): Reply {
 
   return {
     answer:
-      'I can help with this shop’s products — for example ingredients, how to use something, prices, comparisons, alternatives, or why something was recommended. What would you like to know?',
+      'I can help with this shop’s products, for example ingredients, how to use something, prices, comparisons, alternatives, or why something was recommended. What would you like to know?',
     productIds: [],
   };
 }

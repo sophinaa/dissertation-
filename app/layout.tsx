@@ -5,14 +5,14 @@ import './globals.css';
 
 export const metadata: Metadata = {
   title: {
-    default: 'Botanical & You — natural oils for skin and hair (prototype)',
+    default: 'Botanical & You: natural oils for skin and hair (prototype)',
     template: '%s · Botanical & You (prototype)',
   },
   description:
     'A prototype shop for natural skin and hair care oils, with optional personalised recommendations, a product finder and a catalogue-grounded shopping assistant.',
   openGraph: {
     title: 'Botanical & You (prototype)',
-    description: 'Natural oils for skin and hair — a dissertation prototype.',
+    description: 'Natural oils for skin and hair. A dissertation prototype.',
   },
 };
 
