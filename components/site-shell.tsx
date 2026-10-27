@@ -6,6 +6,7 @@ import { useEffect, useState, type ReactNode } from 'react';
 import { Menu, MessageCircle, Scale, ShoppingBag, UserRound, X } from 'lucide-react';
 import { tasksFor } from '@/lib/study.ts';
 import { useAccount } from './account';
+import { Logo } from './logo';
 import { AssistantPanel } from './assistant-panel';
 import { useStore } from './store';
 
@@ -72,8 +73,8 @@ export function SiteShell({ children }: { children: ReactNode }) {
       </div>
       {study && <StudyBar />}
       <header className="site-header">
-        <Link href="/" className="brand" onClick={close}>
-          botanical &amp; you
+        <Link href="/" className="brand" onClick={close} aria-label="Botanical & You, home">
+          <Logo size={44} />
         </Link>
         <button
           type="button"
@@ -167,7 +168,10 @@ export function SiteShell({ children }: { children: ReactNode }) {
       </main>
       <footer className="site-footer">
         <div>
-          <p className="brand small">botanical &amp; you</p>
+          <p className="brand small">
+            <Logo size={32} />
+            <span className="sr-only">Botanical &amp; You</span>
+          </p>
           <p>A dissertation prototype. Products are demos; nothing can be bought.</p>
         </div>
         <ul>
