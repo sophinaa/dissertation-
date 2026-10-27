@@ -5,6 +5,7 @@ import { StoreProvider } from '@/components/store';
 import './globals.css';
 
 export const metadata: Metadata = {
+  icons: { icon: '/favicon.svg' },
   title: {
     default: 'Botanical & You: natural oils for skin and hair (prototype)',
     template: '%s · Botanical & You (prototype)',

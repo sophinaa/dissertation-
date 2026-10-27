@@ -74,7 +74,7 @@ export function SiteShell({ children }: { children: ReactNode }) {
       {study && <StudyBar />}
       <header className="site-header">
         <Link href="/" className="brand" onClick={close} aria-label="Botanical & You, home">
-          <Logo size={44} />
+          <Logo />
         </Link>
         <button
           type="button"
@@ -169,8 +169,7 @@ export function SiteShell({ children }: { children: ReactNode }) {
       <footer className="site-footer">
         <div>
           <p className="brand small">
-            <Logo size={32} />
-            <span className="sr-only">Botanical &amp; You</span>
+            <Logo />
           </p>
           <p>A dissertation prototype. Products are demos; nothing can be bought.</p>
         </div>

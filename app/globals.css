@@ -364,14 +364,20 @@ code {
   color: var(--green) !important;
   text-decoration: none;
   margin: 0 auto 0 0;
-  border-radius: 50%;
-  transition: transform 0.2s;
+  border-radius: 4px;
 }
 .brand:hover {
-  transform: rotate(-8deg);
+  color: var(--green-hover) !important;
 }
 .logo {
   display: block;
+  width: 222px;
+  height: auto;
+  flex-shrink: 0;
+  object-fit: contain;
+}
+.brand.small .logo {
+  width: 240px;
 }
 .site-header nav ul {
   display: flex;
@@ -1921,8 +1927,8 @@ legend {
   }
 }
 @media (max-width: 600px) {
-  .brand {
-    font-size: 1.4rem;
+  .site-header .logo {
+    width: clamp(164px, 49vw, 210px);
   }
   .header-actions {
     width: 100%;
