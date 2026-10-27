@@ -73,16 +73,18 @@ export function HomeClient() {
             </Link>
           </div>
           <div className="pref-line">
-            <span>
+            <p>
               Based on:{' '}
               {summarisePreferences(prefs)
                 .map((item) => item.value)
                 .join(' · ')}
-            </span>
-            <Link href="/preferences?return=summary" className="link-button">
-              Edit preferences
-            </Link>
-            <ResetPreferencesButton />
+            </p>
+            <div className="personal-pref-actions">
+              <Link href="/preferences?return=summary" className="link-button">
+                Edit preferences
+              </Link>
+              <ResetPreferencesButton />
+            </div>
           </div>
           <UpdatedNotice />
           {recs.recommended.length > 0 && (

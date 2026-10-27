@@ -97,16 +97,6 @@ export function SiteShell({ children }: { children: ReactNode }) {
                   Shop
                 </NavLink>
               </li>
-              <li>
-                <NavLink href="/shop?area=skin" onNavigate={close}>
-                  Skin
-                </NavLink>
-              </li>
-              <li>
-                <NavLink href="/shop?area=hair" onNavigate={close}>
-                  Hair
-                </NavLink>
-              </li>
               {features.personalisation && (
                 <li>
                   <NavLink href="/recommendations" onNavigate={close}>

@@ -669,6 +669,37 @@ main:focus {
 .personal .pref-summary {
   margin-top: var(--space-5);
 }
+.personal .section-head {
+  align-items: center;
+  margin-bottom: var(--space-5);
+}
+.personal .section-head h2 {
+  margin: 0;
+}
+.personal .pref-line {
+  display: grid;
+  gap: var(--space-3);
+  margin-bottom: var(--space-6);
+}
+.personal .pref-line p {
+  margin: 0;
+  line-height: 1.65;
+}
+.personal-pref-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3) var(--space-4);
+}
+.personal .grid {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
+  gap: var(--space-5);
+}
+@media (min-width: 601px) {
+  .personal .card-title {
+    min-height: 2.2em;
+  }
+}
 .ways {
   list-style: none;
   padding: 0;
