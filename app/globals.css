@@ -371,13 +371,7 @@ code {
 }
 .logo {
   display: block;
-  width: 222px;
-  height: auto;
   flex-shrink: 0;
-  object-fit: contain;
-}
-.brand.small .logo {
-  width: 240px;
 }
 .site-header nav ul {
   display: flex;
@@ -1927,9 +1921,6 @@ legend {
   }
 }
 @media (max-width: 600px) {
-  .site-header .logo {
-    width: clamp(164px, 49vw, 210px);
-  }
   .header-actions {
     width: 100%;
     order: 4;
