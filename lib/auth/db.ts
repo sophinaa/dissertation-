@@ -1,12 +1,13 @@
 // Account storage on Cloudflare D1 (SQLite). Written against a minimal D1-shaped
 // interface so it can be tested with Node's built-in SQLite.
 //
-// Privacy: only an email address, linked sign-in methods and saved shopping
-// preferences are stored. Session tokens, email codes and IP addresses are only
+// Privacy: only an email address, linked sign-in methods, saved shopping
+// preferences and saved assistant chats are stored. Session tokens, email codes and IP addresses are only
 // ever stored as keyed hashes.
 
 import { hmac, randomToken, safeEqual, sha256, sixDigitCode } from './crypto.ts';
 import { normalisePreferences, type Preferences } from '../preferences.ts';
+import { MAX_CHATS, normaliseConversation, sortChats, type Conversation } from '../assistant/chats.ts';
 
 export interface DbStatement {
   bind(...values: unknown[]): DbStatement;
@@ -61,6 +62,13 @@ export const SCHEMA = [
     updated_at INTEGER NOT NULL
   )`,
   `CREATE INDEX IF NOT EXISTS sessions_user ON sessions(user_id)`,
+  `CREATE TABLE IF NOT EXISTS chats (
+    user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    id TEXT NOT NULL,
+    data TEXT NOT NULL,
+    updated_at INTEGER NOT NULL,
+    PRIMARY KEY (user_id, id)
+  )`,
 ];
 
 const schemaReady = new WeakMap<Db, Promise<void>>();
@@ -158,7 +166,7 @@ export async function deleteSession(db: Db, token: string | null): Promise<void>
 /** Remove the account and everything linked to it. */
 export async function deleteUser(db: Db, userId: string): Promise<void> {
   // Explicit deletes rather than relying on foreign-key cascades being enabled.
-  for (const table of ['sessions', 'identities', 'preferences']) {
+  for (const table of ['sessions', 'identities', 'preferences', 'chats']) {
     await db.prepare(`DELETE FROM ${table} WHERE user_id = ?`).bind(userId).run();
   }
   await db.prepare('DELETE FROM users WHERE id = ?').bind(userId).run();
@@ -255,4 +263,50 @@ export async function savePreferences(db: Db, userId: string, prefs: Preferences
     )
     .bind(userId, JSON.stringify(normalisePreferences(prefs)), now)
     .run();
+}
+
+// ---------- Saved assistant chats ----------
+
+/** The account's chats, newest first. Rows that no longer validate are skipped. */
+export async function listChats(db: Db, userId: string): Promise<Conversation[]> {
+  const { results } = await db
+    .prepare('SELECT data FROM chats WHERE user_id = ? ORDER BY updated_at DESC LIMIT ?')
+    .bind(userId, MAX_CHATS)
+    .all<{ data: string }>();
+  const chats: Conversation[] = [];
+  for (const row of results) {
+    try {
+      const chat = normaliseConversation(JSON.parse(row.data));
+      if (chat) chats.push(chat);
+    } catch {
+      /* skip unreadable rows */
+    }
+  }
+  return sortChats(chats);
+}
+
+/** Save one validated chat, then drop the oldest beyond MAX_CHATS. */
+export async function saveChat(db: Db, userId: string, chat: Conversation): Promise<void> {
+  const clean = normaliseConversation(chat);
+  if (!clean) return;
+  await db
+    .prepare(
+      `INSERT INTO chats (user_id, id, data, updated_at) VALUES (?, ?, ?, ?)
+       ON CONFLICT(user_id, id) DO UPDATE SET data = excluded.data, updated_at = excluded.updated_at`,
+    )
+    .bind(userId, clean.id, JSON.stringify(clean), clean.updatedAt)
+    .run();
+  await db
+    .prepare(
+      `DELETE FROM chats WHERE user_id = ? AND id NOT IN
+        (SELECT id FROM chats WHERE user_id = ? ORDER BY updated_at DESC LIMIT ?)`,
+    )
+    .bind(userId, userId, MAX_CHATS)
+    .run();
+}
+
+/** Delete one chat, or all of the account's chats when id is null. */
+export async function deleteChats(db: Db, userId: string, id: string | null): Promise<void> {
+  if (id === null) await db.prepare('DELETE FROM chats WHERE user_id = ?').bind(userId).run();
+  else await db.prepare('DELETE FROM chats WHERE user_id = ? AND id = ?').bind(userId, id).run();
 }

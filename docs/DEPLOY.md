@@ -46,6 +46,7 @@ Copy the `database_id` it prints. The schema is created automatically on first u
 
 ```sh
 npx wrangler d1 execute dissertation-accounts --remote --file=migrations/0001_accounts.sql
+npx wrangler d1 execute dissertation-accounts --remote --file=migrations/0002_chats.sql
 ```
 
 ## 2. Build with your database ID

@@ -1,11 +1,13 @@
 'use client';
 
 // Optional accounts. Guests keep everything in the browser; signing in saves
-// preferences to the account so they follow the person across devices.
+// preferences and assistant chats to the account so they follow the person
+// across devices, and each account only ever sees its own chats.
 // Accounts are never used during study sessions, to keep conditions clean.
 
 import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from 'react';
 import { normalisePreferences, type Preferences } from '@/lib/preferences.ts';
+import { normaliseConversation, type Conversation } from '@/lib/assistant/chats.ts';
 import { useStore } from './store';
 
 export interface AccountUser {
@@ -43,8 +45,22 @@ async function putPrefs(preferences: Preferences | null) {
   }).catch(() => null);
 }
 
+async function fetchChats(): Promise<Conversation[] | null> {
+  const res = await fetch('/api/account/chats', { cache: 'no-store' }).catch(() => null);
+  if (!res?.ok) return null;
+  const data = (await res.json().catch(() => null)) as { chats?: unknown[] } | null;
+  if (!Array.isArray(data?.chats)) return null;
+  return data.chats.map(normaliseConversation).filter((c): c is Conversation => !!c);
+}
+
+const chatRequest = (id: string, init: RequestInit) =>
+  fetch(`/api/account/chats/${encodeURIComponent(id)}`, {
+    ...init,
+    headers: { 'content-type': 'application/json' },
+  }).catch(() => null);
+
 export function AccountProvider({ children }: { children: ReactNode }) {
-  const { hydrated, study, prefs, loadPrefs, announce } = useStore();
+  const { hydrated, study, prefs, loadPrefs, announce, chats, chatOwner, loadAccountChats } = useStore();
   const [ready, setReady] = useState(false);
   const [user, setUser] = useState<AccountUser | null>(null);
   const [methods, setMethods] = useState<AuthMethods | null>(null);
@@ -52,6 +68,9 @@ export function AccountProvider({ children }: { children: ReactNode }) {
   const syncStarted = useRef<string | null>(null);
   const [syncedEmail, setSyncedEmail] = useState<string | null>(null);
   const lastUploaded = useRef<string | null>(null);
+  /** Account whose chats are showing, and the version of each chat the server has. */
+  const [chatsFor, setChatsFor] = useState<string | null>(null);
+  const serverChats = useRef(new Map<string, number>());
 
   const applySession = useCallback((data: { user: AccountUser | null; methods: AuthMethods } | null) => {
     setUser(data?.user ?? null);
@@ -123,16 +142,58 @@ export function AccountProvider({ children }: { children: ReactNode }) {
     return () => clearTimeout(timer);
   }, [prefs, user, study, syncedEmail]);
 
+  // On sign-in, show the account's chats instead of this device's.
+  useEffect(() => {
+    if (!user || study || chatsFor === user.email) return;
+    const email = user.email;
+    let active = true;
+    void fetchChats().then((saved) => {
+      if (!active || !saved) return; // couldn't load: keep showing this device's chats
+      serverChats.current = new Map(saved.map((c) => [c.id, c.updatedAt]));
+      loadAccountChats(saved);
+      setChatsFor(email);
+    });
+    return () => {
+      active = false;
+    };
+  }, [user, study, chatsFor, loadAccountChats]);
+
+  // Then save new or changed chats, and remove deleted ones, shortly after each change.
+  useEffect(() => {
+    if (!user || study || chatOwner !== 'account' || chatsFor !== user.email) return;
+    const timer = setTimeout(() => {
+      const known = serverChats.current;
+      for (const chat of chats) {
+        if (known.get(chat.id) === chat.updatedAt) continue;
+        known.set(chat.id, chat.updatedAt);
+        void chatRequest(chat.id, { method: 'PUT', body: JSON.stringify({ chat }) });
+      }
+      for (const id of known.keys()) {
+        if (chats.some((c) => c.id === id)) continue;
+        known.delete(id);
+        void chatRequest(id, { method: 'DELETE' });
+      }
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [chats, chatOwner, chatsFor, user, study]);
+
+  const forgetAccountChats = useCallback(() => {
+    serverChats.current = new Map();
+    setChatsFor(null);
+    loadAccountChats(null);
+  }, [loadAccountChats]);
+
   const signOut = useCallback(async () => {
     await fetch('/api/auth/logout', { method: 'POST' }).catch(() => null);
     syncStarted.current = null;
     setSyncedEmail(null);
     setUser(null);
     setSyncNote(null);
-    // The preferences belonged to the account; don't leave them on a possibly shared device.
+    // The preferences and chats belonged to the account; don't leave them on a possibly shared device.
     loadPrefs(null);
+    forgetAccountChats();
     announce('You’re signed out.');
-  }, [announce, loadPrefs]);
+  }, [announce, loadPrefs, forgetAccountChats]);
 
   const deleteAccount = useCallback(async () => {
     const res = await fetch('/api/account', { method: 'DELETE' }).catch(() => null);
@@ -142,9 +203,10 @@ export function AccountProvider({ children }: { children: ReactNode }) {
     setUser(null);
     setSyncNote(null);
     loadPrefs(null);
+    forgetAccountChats();
     announce('Your account and saved data have been deleted.');
     return true;
-  }, [announce, loadPrefs]);
+  }, [announce, loadPrefs, forgetAccountChats]);
 
   return (
     <AccountContext.Provider value={{ ready, user, methods, syncNote, refresh, signOut, deleteAccount }}>

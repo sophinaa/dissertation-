@@ -4,9 +4,12 @@
 // comparison and assistant context from here, so a change in one place is
 // reflected everywhere.
 //
-// Persistence (guest only, no accounts):
+// Persistence:
 //   normal visit  -> localStorage; preferences expire after PREFS_TTL_DAYS.
-//                    The assistant conversation is kept in sessionStorage only.
+//                    Assistant chats: each page load starts a new chat; earlier
+//                    chats are kept for GUEST_CHAT_TTL_DAYS. When signed in,
+//                    chats belong to the account instead (synced by account.tsx)
+//                    and are not written to this browser.
 //   study session -> sessionStorage under a separate prefix, wiped when a
 //                    session starts or ends, so study state never mixes with
 //                    a normal visit or a previous participant.
@@ -22,6 +25,15 @@ import {
   type ReactNode,
 } from 'react';
 import { isProductId } from '@/lib/catalogue.ts';
+import {
+  GUEST_CHAT_TTL_DAYS,
+  MAX_CHAT_MESSAGES,
+  chatTitle,
+  normaliseConversation,
+  sortChats,
+  type Conversation,
+  type StoredMessage,
+} from '@/lib/assistant/chats.ts';
 import {
   changedFields,
   hasAnswers,
@@ -50,15 +62,9 @@ export interface BasketLine {
   qty: number;
 }
 
-export interface ChatMessage {
-  id: string;
-  role: 'user' | 'assistant';
-  content: string;
-  productIds?: string[];
-  mode?: 'live' | 'offline';
-  /** Set on a user message whose request failed, so it can be retried. */
-  failed?: string;
-}
+export type ChatMessage = StoredMessage;
+/** Whose chats are showing: this browser's, or the signed-in account's. */
+export type ChatOwner = 'device' | 'account';
 
 interface AssistantState {
   open: boolean;
@@ -92,8 +98,18 @@ interface StoreValue {
   openAssistant: (opts?: { productId?: string | null; prefill?: string }) => void;
   closeAssistant: () => void;
   setAssistantProduct: (id: string | null) => void;
-  setMessages: (update: (m: ChatMessage[]) => ChatMessage[]) => void;
-  clearChat: () => void;
+  /** Saved chats, newest first. */
+  chats: Conversation[];
+  activeChatId: string | null;
+  chatOwner: ChatOwner;
+  /** Update a chat's messages, creating it if needed. `open` makes it the active chat. */
+  updateChat: (id: string, update: (m: ChatMessage[]) => ChatMessage[], open?: boolean) => void;
+  openChat: (id: string) => void;
+  newChat: () => void;
+  deleteChat: (id: string) => void;
+  deleteAllChats: () => void;
+  /** Show an account's chats, or this browser's again with null (signed out). */
+  loadAccountChats: (chats: Conversation[] | null) => void;
   announcement: string;
   announce: (text: string) => void;
   track: (type: StudyEventType, data?: Omit<StudyEvent, 't' | 'type'>) => void;
@@ -147,7 +163,9 @@ function keysFor(study: StudySession | null) {
     basket: `${prefix}basket`,
     compare: `${prefix}compare`,
     recent: `${prefix}recent`,
-    chat: `${prefix}chat`,
+    chats: `${prefix}chats`,
+    /** The single conversation kept before chat history existed. */
+    legacyChat: `${prefix}chat`,
   };
 }
 
@@ -162,7 +180,24 @@ interface Persisted {
   basket: BasketLine[];
   compare: string[];
   recent: string[];
-  messages: ChatMessage[];
+  chats: Conversation[];
+}
+
+function readChats(study: StudySession | null): Conversation[] {
+  const keys = keysFor(study);
+  const cutoff = Date.now() - GUEST_CHAT_TTL_DAYS * 86_400_000;
+  const chats = (read<unknown[]>(keys.kind, keys.chats) ?? [])
+    .map(normaliseConversation)
+    .filter((c): c is Conversation => !!c && c.updatedAt > cutoff);
+  // Keep a conversation saved by the earlier single-chat version.
+  const legacy = read<unknown[]>('session', keys.legacyChat);
+  if (legacy) {
+    const now = Date.now();
+    const old = normaliseConversation({ id: `c-legacy-${now.toString(36)}`, messages: legacy, createdAt: now, updatedAt: now });
+    if (old) chats.push(old);
+    write('session', keys.legacyChat, null);
+  }
+  return sortChats(chats);
 }
 
 function loadPersisted(study: StudySession | null): Persisted {
@@ -180,24 +215,24 @@ function loadPersisted(study: StudySession | null): Persisted {
     .map((l) => ({ id: l.id, qty: Math.min(l.qty, MAX_QTY) }));
   const ids = (key: string, max: number) =>
     (read<unknown[]>(keys.kind, key) ?? []).filter(isProductId).slice(0, max);
-  const messages = (read<ChatMessage[]>('session', keys.chat) ?? []).filter(
-    (m) => (m?.role === 'user' || m?.role === 'assistant') && typeof m.content === 'string',
-  );
   return {
     prefs,
     basket,
     compare: ids(keys.compare, MAX_COMPARE),
     recent: ids(keys.recent, MAX_RECENT),
-    messages,
+    chats: readChats(study),
   };
 }
 
-const EMPTY_STATE: Persisted = { prefs: null, basket: [], compare: [], recent: [], messages: [] };
+const EMPTY_STATE: Persisted = { prefs: null, basket: [], compare: [], recent: [], chats: [] };
 
 export function StoreProvider({ children }: { children: ReactNode }) {
   const [hydrated, setHydrated] = useState(false);
   const [study, setStudy] = useState<StudySession | null>(null);
   const [state, setState] = useState<Persisted>(EMPTY_STATE);
+  // Never restored: every page load starts with a new chat.
+  const [activeChatId, setActiveChatId] = useState<string | null>(null);
+  const [chatOwner, setChatOwner] = useState<ChatOwner>('device');
   const [lastPrefsChange, setLastPrefsChange] = useState<StoreValue['lastPrefsChange']>(null);
   const [assistantUi, setAssistantUi] = useState({ open: false, productId: null as string | null, prefill: '' });
   const [announcement, setAnnouncement] = useState('');
@@ -230,8 +265,9 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     write(keys.kind, keys.basket, state.basket);
     write(keys.kind, keys.compare, state.compare);
     write(keys.kind, keys.recent, state.recent);
-    write('session', keys.chat, state.messages.length ? state.messages.slice(-30) : null);
-  }, [hydrated, study, state]);
+    // An account's chats are saved to the account, never left on this device.
+    if (chatOwner === 'device') write(keys.kind, keys.chats, state.chats.length ? state.chats : null);
+  }, [hydrated, study, state, chatOwner]);
 
   useEffect(() => {
     if (hydrated) write('session', SESSION_KEY, study);
@@ -335,6 +371,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     const session = newSession(condition, code, recordEvents);
     setStudy(session);
     setState(EMPTY_STATE);
+    setActiveChatId(null);
+    setChatOwner('device');
     setLastPrefsChange(null);
     setAssistantUi({ open: false, productId: null, prefill: '' });
   }, []);
@@ -344,6 +382,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     write('session', SESSION_KEY, null);
     setStudy(null);
     setState(loadPersisted(null));
+    setActiveChatId(null);
+    setChatOwner('device');
     setLastPrefsChange(null);
     setAssistantUi({ open: false, productId: null, prefill: '' });
   }, []);
@@ -366,6 +406,40 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     });
   }, []);
 
+  const updateChat = useCallback<StoreValue['updateChat']>((id, update, open = false) => {
+    setState((s) => {
+      const existing = s.chats.find((c) => c.id === id);
+      const messages = update(existing?.messages ?? []).slice(-MAX_CHAT_MESSAGES);
+      if (!messages.length) return s;
+      const now = Date.now();
+      const chat: Conversation = {
+        id,
+        title: chatTitle(messages),
+        createdAt: existing?.createdAt ?? now,
+        updatedAt: now,
+        messages,
+      };
+      return { ...s, chats: sortChats([chat, ...s.chats.filter((c) => c.id !== id)]) };
+    });
+    if (open) setActiveChatId(id);
+  }, []);
+
+  const deleteChat = useCallback((id: string) => {
+    setState((s) => ({ ...s, chats: s.chats.filter((c) => c.id !== id) }));
+    setActiveChatId((a) => (a === id ? null : a));
+  }, []);
+
+  const loadAccountChats = useCallback(
+    (chats: Conversation[] | null) => {
+      setActiveChatId(null);
+      setChatOwner(chats ? 'account' : 'device');
+      setState((s) => ({ ...s, chats: chats ? sortChats(chats) : readChats(study) }));
+    },
+    [study],
+  );
+
+  const activeChat = state.chats.find((c) => c.id === activeChatId);
+
   const value: StoreValue = {
     hydrated,
     features,
@@ -384,7 +458,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     clearCompare: () => setState((s) => ({ ...s, compare: [] })),
     recent: state.recent,
     markViewed,
-    assistant: { ...assistantUi, messages: state.messages },
+    assistant: { ...assistantUi, messages: activeChat?.messages ?? [] },
     openAssistant: (opts) => {
       const active = document.activeElement;
       assistantOpener = active instanceof HTMLElement && active !== document.body ? active : null;
@@ -396,8 +470,18 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     },
     closeAssistant: () => setAssistantUi((a) => ({ ...a, open: false, prefill: '' })),
     setAssistantProduct: (id) => setAssistantUi((a) => ({ ...a, productId: id })),
-    setMessages: (update) => setState((s) => ({ ...s, messages: update(s.messages) })),
-    clearChat: () => setState((s) => ({ ...s, messages: [] })),
+    chats: state.chats,
+    activeChatId: activeChat ? activeChatId : null,
+    chatOwner,
+    updateChat,
+    openChat: setActiveChatId,
+    newChat: () => setActiveChatId(null),
+    deleteChat,
+    deleteAllChats: () => {
+      setState((s) => ({ ...s, chats: [] }));
+      setActiveChatId(null);
+    },
+    loadAccountChats,
     announcement,
     announce,
     track,

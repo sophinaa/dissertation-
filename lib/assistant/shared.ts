@@ -51,10 +51,19 @@ export interface AssistantRequest {
   context: AssistantContext;
 }
 
+export interface ShopLink {
+  /** A /shop URL whose filters reproduce the answer's product list. */
+  href: string;
+  label: string;
+}
+
 export interface AssistantReply {
   mode: 'live' | 'offline';
   answer: string;
   productIds: string[];
+  /** Short questions the customer can tap to continue, written in their voice. */
+  followUps: string[];
+  shopLink?: ShopLink;
   /** Product IDs the model returned that do not exist and were discarded. */
   rejectedIds: number;
   model?: string;
@@ -74,6 +83,8 @@ export interface AssistantErrorBody {
 export const MAX_MESSAGE_CHARS = 1000;
 export const MAX_TURNS = 8;
 export const MAX_PRODUCT_LINKS = 4;
+export const MAX_FOLLOW_UPS = 3;
+export const MAX_FOLLOW_UP_CHARS = 80;
 export const UNKNOWN = 'The catalogue does not specify that, so I can’t confirm it.';
 
 export class RequestError extends Error {}
@@ -242,15 +253,21 @@ export const OUTPUT_SCHEMA = {
       description: 'IDs of catalogue products the answer refers to, most relevant first.',
     },
     needs_clarification: { type: 'boolean' },
+    follow_ups: {
+      type: 'array',
+      items: { type: 'string' },
+      description:
+        'Two or three short next questions the customer might tap, written as the customer would ask them.',
+    },
   },
-  required: ['answer', 'product_ids', 'needs_clarification'],
+  required: ['answer', 'product_ids', 'needs_clarification', 'follow_ups'],
   additionalProperties: false,
 } as const;
 
 /** Parse and validate model output. Unknown product IDs are dropped, never rendered. */
 export function validateModelOutput(
   text: string,
-): { answer: string; productIds: string[]; rejectedIds: number } | null {
+): { answer: string; productIds: string[]; followUps: string[]; rejectedIds: number } | null {
   let parsed: unknown;
   try {
     parsed = JSON.parse(text);
@@ -265,8 +282,21 @@ export function validateModelOutput(
   return {
     answer: obj.answer.trim(),
     productIds: valid.slice(0, MAX_PRODUCT_LINKS),
+    followUps: cleanFollowUps(obj.follow_ups),
     rejectedIds: ids.length - ids.filter(isProductId).length,
   };
+}
+
+/** Keep only short, distinct, non-empty strings. Never fails the whole reply. */
+export function cleanFollowUps(value: unknown): string[] {
+  if (!Array.isArray(value)) return [];
+  const out: string[] = [];
+  for (const v of value) {
+    if (typeof v !== 'string') continue;
+    const s = v.replace(/\s+/g, ' ').trim();
+    if (s && s.length <= MAX_FOLLOW_UP_CHARS && !out.includes(s)) out.push(s);
+  }
+  return out.slice(0, MAX_FOLLOW_UPS);
 }
 
 export const SYSTEM_PROMPT = `You are the shopping assistant for Botanical & You, a prototype single-brand UK online shop for natural skin and hair care oils. You help customers discover, understand and compare products in this shop's catalogue.
@@ -288,5 +318,6 @@ Style:
 - Be concise: usually under 120 words. Use short paragraphs or "• " bullet lines.
 - Do not use em dashes; use full stops, commas or colons instead.
 - Refer to products by their exact catalogue name, and list the IDs of every product you mention in product_ids (most relevant first, at most ${MAX_PRODUCT_LINKS}).
-- If the question is ambiguous, ask one short clarifying question and set needs_clarification to true.
+- If the question is ambiguous, ask one short clarifying question and set needs_clarification to true. Make the follow_ups the likely answers to it.
+- Always offer two or three follow_ups: short next steps the customer can tap, written in their voice (for example "Which of these has no added scent?"), each under ${MAX_FOLLOW_UP_CHARS} characters, and answerable from the catalogue. Name products in full so each follow-up makes sense on its own.
 - Prices are in GBP. Budgets are per product unless the customer says otherwise.`;

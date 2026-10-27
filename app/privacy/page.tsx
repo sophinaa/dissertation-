@@ -14,8 +14,8 @@ export default function PrivacyPage() {
       <section aria-labelledby="no-account">
         <h2 id="no-account">Without an account</h2>
         <p>
-          Your basket, comparison and preferences stay in your browser. Preferences are kept for up to 30 days.
-          Nothing is sent to us. You can clear them any time with “Reset preferences” or by clearing your browser
+          Your basket, comparison, preferences and assistant chats stay in your browser. Preferences and chats are
+          kept for up to 30 days. Nothing is sent to us. You can clear them any time with “Reset preferences” or by clearing your browser
           data.
         </p>
       </section>
@@ -24,8 +24,12 @@ export default function PrivacyPage() {
         <h2 id="with-account">With an account</h2>
         <ul>
           <li>
-            <strong>We store:</strong> your email address, which sign-in methods you’ve used, and your saved shopping
-            preferences.
+            <strong>We store:</strong> your email address, which sign-in methods you’ve used, your saved shopping
+            preferences, and your shopping-assistant chats (up to 20) so you can reopen them on any device.
+          </li>
+          <li>
+            <strong>Chats can include anything you type.</strong> Avoid sharing health details. You can delete a chat,
+            or all of them, from the assistant’s History.
           </li>
           <li>
             <strong>Preferences can include ingredients you avoid.</strong> Only save these if you’re happy for us
