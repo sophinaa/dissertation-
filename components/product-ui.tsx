@@ -14,35 +14,20 @@ import {
 import { headline, type ProductFit } from '@/lib/recommend.ts';
 import { MAX_COMPARE, useStore } from './store';
 
-/** A short display word for the poster-style placeholder (presentation only). */
-const POSTER_WORDS: Record<string, string> = {
-  'rose-facial-oil': 'Rose',
-  'rosehip-facial-oil': 'Rosehip',
-  'golden-jojoba-oil': 'Jojoba',
-  'pure-argan-oil': 'Argan',
-  'pure-argan-oil-15ml': 'Argan',
-  'rose-argan-night-oil': 'Night',
-  'face-oil-discovery-set': 'Trio',
-  'unscented-body-oil': 'Body',
-  'evening-body-oil': 'Evening',
-  'shea-body-butter': 'Shea',
-  'rocket-seed-hair-oil': 'Rocket',
-  'mixed-botanical-hair-oil': 'Blend',
-  'tea-tree-scalp-oil': 'Tea tree',
-  'rosemary-hair-oil': 'Rosemary',
-  'amla-hair-oil': 'Amla',
-  'pre-wash-hair-duo': 'Duo',
-};
-
-/** Honest placeholder: there are no real product photographs yet. */
+/** Local illustrations stand in for product photography throughout the storefront. */
 export function ProductImage({ product, large = false }: { product: Product; large?: boolean }) {
-  const word = POSTER_WORDS[product.id] ?? product.name.split(' ')[0];
   return (
     <div className={`product-image tone-${product.category}${large ? ' large' : ''}`}>
-      <span className={`poster-word${word.length > 6 ? ' long' : ''}`} aria-hidden="true">
-        {word}
-      </span>
-      <span className="photo-note">Photo coming soon</span>
+      <img
+        className="product-placeholder"
+        src={`/products/${product.id}.svg`}
+        alt={`${product.name} — placeholder illustration`}
+        width={600}
+        height={450}
+        loading={large ? 'eager' : 'lazy'}
+        decoding="async"
+      />
+      <span className="photo-note">Illustrative image</span>
     </div>
   );
 }

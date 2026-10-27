@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="450" viewBox="0 0 600 450">
+<title>Shea — illustrative product placeholder</title>
+<defs><linearGradient id="glass" x1="0" x2="1"><stop stop-color="#795022"/><stop offset=".25" stop-color="#ba8a42"/><stop offset=".55" stop-color="#a7722f"/><stop offset="1" stop-color="#67441f"/></linearGradient></defs>
+<circle cx="300" cy="223" r="162" fill="#fff8e7" opacity=".25"/>
+<path d="M103 354Q148 277 185 221M144 284Q106 279 108 246Q143 248 144 284M163 254Q162 219 194 206Q199 239 163 254M126 318Q89 316 86 285Q118 285 126 318" fill="#a89a77" opacity=".35"/>
+<ellipse cx="300" cy="349" rx="111" ry="15" fill="#243828" opacity=".14"/>
+<rect x="193" y="213" width="214" height="130" rx="25" fill="url(#glass)"/>
+<rect x="187" y="188" width="226" height="43" rx="10" fill="#3b4434"/>
+<path d="M200 200H400" stroke="#69705c" stroke-width="2"/>
+<rect x="202" y="250" width="196" height="68" rx="2" fill="#f6f1df"/>
+<rect x="202" y="250" width="196" height="5" fill="#a89a77"/>
+<text x="300" y="282" text-anchor="middle" font-family="Georgia,serif" font-size="26" fill="#354631">Shea</text>
+<text x="300" y="302" text-anchor="middle" font-family="Arial,sans-serif" font-size="9" letter-spacing="2" fill="#58614f">BODY BUTTER · 120 g</text></svg>
