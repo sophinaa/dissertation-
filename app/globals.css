@@ -350,21 +350,29 @@ code {
   max-width: 80ch;
 }
 .site-header {
-  display: flex;
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  background: rgb(243 241 229 / 0.94);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--line);
+}
+.header-inner {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
   align-items: center;
-  gap: var(--space-4);
-  flex-wrap: wrap;
-  padding: var(--space-4) var(--gutter);
-  border-bottom: 0;
-  background: var(--bg);
+  gap: var(--space-5);
+  max-width: var(--max);
+  margin: 0 auto;
+  padding: 10px var(--gutter);
 }
 .brand {
   display: inline-flex;
   align-items: center;
   color: var(--green) !important;
   text-decoration: none;
-  margin: 0 auto 0 0;
-  border-radius: 4px;
+  border-radius: 6px;
 }
 .brand:hover {
   color: var(--green-hover) !important;
@@ -373,9 +381,12 @@ code {
   display: block;
   flex-shrink: 0;
 }
+.site-header nav {
+  justify-self: center;
+}
 .site-header nav ul {
   display: flex;
-  gap: var(--space-1);
+  gap: 2px;
   margin: 0;
   padding: 0;
   list-style: none;
@@ -383,60 +394,87 @@ code {
 .site-header nav a {
   display: inline-flex;
   align-items: center;
-  min-height: 44px;
-  padding: 0 10px;
+  min-height: 40px;
+  padding: 0 14px;
+  border-radius: 999px;
   color: var(--ink);
   text-decoration: none;
-  border-bottom: 2px solid transparent;
+  font-weight: 500;
   white-space: nowrap;
+  transition: background-color 0.15s;
 }
 .site-header nav a:hover {
-  border-bottom-color: var(--line-strong);
+  background: var(--sage-100);
+  color: var(--ink);
 }
 .site-header nav a[aria-current='page'] {
-  border-bottom-color: var(--green);
-  font-weight: 600;
+  background: var(--sage-200);
+  color: var(--green);
+  font-weight: 650;
+}
+.menu-only {
+  display: none;
 }
 .header-actions {
   display: flex;
-  gap: var(--space-2);
-  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
 }
-/* Person icon only; the visible label is kept for screen readers. */
-.account-link {
-  width: 44px;
-  padding: 0 !important;
-}
-.account-link .account-label {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-}
-.account-link[aria-current='page'] {
-  border-color: var(--green);
-  background: var(--sage-100);
-}
-.count {
-  background: var(--sage-200);
+.ask-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 42px;
+  padding: 0 16px;
   border-radius: 999px;
-  padding: 0 7px;
-  font-size: 0.8rem;
-  min-width: 1.5em;
+  border: 0;
+  background: var(--green);
+  color: #fff;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+.ask-button:hover {
+  background: var(--green-hover);
+}
+.icon-button {
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 0;
+  background: transparent;
+  color: var(--ink);
+  cursor: pointer;
+  text-decoration: none;
+  transition: background-color 0.15s;
+}
+.icon-button:hover,
+.icon-button[aria-current='page'],
+.icon-button[aria-expanded='true'] {
+  background: var(--sage-200);
+  color: var(--green);
+}
+.badge {
+  position: absolute;
+  top: 3px;
+  right: 1px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: var(--green);
+  color: #fff;
+  font-size: 0.7rem;
+  font-weight: 700;
+  line-height: 18px;
   text-align: center;
+  box-shadow: 0 0 0 2px var(--bg);
 }
 .menu-toggle {
   display: none;
-  align-items: center;
-  gap: 6px;
-  min-height: 44px;
-  padding: 0 14px;
-  border: 1px solid var(--line-strong);
-  border-radius: var(--radius);
-  background: var(--surface);
-  font: inherit;
 }
 main {
   display: block;
@@ -1849,41 +1887,43 @@ legend {
 }
 
 /* ---------- Responsive ---------- */
-@media (max-width: 1400px) {
-  .action-label {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    overflow: hidden;
-    clip: rect(0, 0, 0, 0);
-    white-space: nowrap;
+@media (max-width: 900px) {
+  .header-inner {
+    /* Static so the dropdown menu is positioned against the full-width header. */
+    position: static;
+    grid-template-columns: auto 1fr;
+    gap: var(--space-3);
   }
-}
-@media (max-width: 1180px) {
+  .header-actions {
+    justify-self: end;
+  }
+  .menu-toggle {
+    display: inline-grid;
+  }
   .site-header nav {
-    order: 3;
-    flex-basis: 100%;
     display: none;
+    position: absolute;
+    justify-self: stretch;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: var(--bg);
+    border-bottom: 1px solid var(--line);
+    box-shadow: 0 12px 24px rgb(23 35 26 / 0.08);
+    padding: var(--space-2) var(--gutter) var(--space-4);
   }
   .site-header nav.open {
     display: block;
   }
   .site-header nav ul {
     flex-direction: column;
+    gap: 2px;
   }
   .site-header nav a {
     width: 100%;
-    border-bottom: 1px solid var(--line);
-  }
-  .site-header nav a[aria-current='page'] {
-    border-left: 3px solid var(--green);
-    border-bottom-color: var(--line);
-  }
-  .menu-toggle {
-    display: inline-flex;
-  }
-  .header-actions {
-    order: 2;
+    min-height: 48px;
+    border-radius: var(--radius);
+    font-size: 1.05rem;
   }
 }
 @media (max-width: 980px) {
@@ -1921,26 +1961,31 @@ legend {
   }
 }
 @media (max-width: 600px) {
-  .header-actions {
-    width: 100%;
-    order: 4;
+  .hide-small {
+    display: none !important;
   }
-  .header-actions {
-    flex-wrap: nowrap;
+  .menu-only {
+    display: list-item;
   }
-  .header-actions {
-    gap: 6px;
+  .header-inner {
+    padding-top: 8px;
+    padding-bottom: 8px;
   }
-  .header-actions .btn {
-    padding: 7px 6px;
+  .site-header .logo {
+    width: 124px !important;
+    height: 42px !important;
   }
-  .account-link {
-    flex: 0 0 44px !important;
+  .ask-button {
+    width: 44px;
+    padding: 0;
+    justify-content: center;
   }
-  .header-actions .btn {
-    flex: 1;
-    padding: 7px 8px;
-    gap: 6px;
+  .ask-label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
   }
   .personal {
     padding: var(--space-4);

@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useEffect, useState, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { Menu, MessageCircle, Scale, ShoppingBag, UserRound, X } from 'lucide-react';
 import { tasksFor } from '@/lib/study.ts';
 import { useAccount } from './account';
@@ -54,6 +54,7 @@ export function SiteShell({ children }: { children: ReactNode }) {
   const account = useAccount();
   const showAccount = !study && account.ready && !!account.methods?.enabled;
   const [menuOpen, setMenuOpen] = useState(false);
+  const menuButton = useRef<HTMLButtonElement>(null);
   const pathname = usePathname();
   const itemCount = basket.reduce((n, l) => n + l.qty, 0);
 
@@ -62,6 +63,18 @@ export function SiteShell({ children }: { children: ReactNode }) {
   }, [pathname, hydrated, track]);
 
   const close = () => setMenuOpen(false);
+
+  // Escape closes the mobile menu from anywhere and returns focus to its button.
+  useEffect(() => {
+    if (!menuOpen) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== 'Escape') return;
+      setMenuOpen(false);
+      menuButton.current?.focus();
+    };
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  }, [menuOpen]);
 
   return (
     <>
@@ -73,94 +86,131 @@ export function SiteShell({ children }: { children: ReactNode }) {
       </div>
       {study && <StudyBar />}
       <header className="site-header">
-        <Link href="/" className="brand" onClick={close} aria-label="Botanical & You, home">
-          <Logo />
-        </Link>
-        <button
-          type="button"
-          className="menu-toggle"
-          aria-expanded={menuOpen}
-          aria-controls="site-nav"
-          onClick={() => setMenuOpen((o) => !o)}
-        >
-          {menuOpen ? <X size={20} aria-hidden="true" /> : <Menu size={20} aria-hidden="true" />}
-          Menu
-        </button>
-        <nav id="site-nav" aria-label="Main" className={menuOpen ? 'open' : ''}>
-          <ul>
-            <li>
-              <NavLink href="/shop" onNavigate={close}>
-                Shop all
-              </NavLink>
-            </li>
-            <li>
-              <NavLink href="/shop?area=skin" onNavigate={close}>
-                Skin
-              </NavLink>
-            </li>
-            <li>
-              <NavLink href="/shop?area=hair" onNavigate={close}>
-                Hair
-              </NavLink>
-            </li>
-            {features.personalisation && (
+        <div className="header-inner">
+          <Link href="/" className="brand" onClick={close} aria-label="Botanical & You, home">
+            <Logo />
+          </Link>
+          <nav id="site-nav" aria-label="Main" className={menuOpen ? 'open' : ''}>
+            <ul>
               <li>
-                <NavLink href="/recommendations" onNavigate={close}>
-                  Find my products
+                <NavLink href="/shop" onNavigate={close}>
+                  Shop
                 </NavLink>
               </li>
-            )}
-            {features.finder && (
               <li>
-                <NavLink href="/finder" onNavigate={close}>
-                  Product finder
+                <NavLink href="/shop?area=skin" onNavigate={close}>
+                  Skin
                 </NavLink>
               </li>
+              <li>
+                <NavLink href="/shop?area=hair" onNavigate={close}>
+                  Hair
+                </NavLink>
+              </li>
+              {features.personalisation && (
+                <li>
+                  <NavLink href="/recommendations" onNavigate={close}>
+                    For you
+                  </NavLink>
+                </li>
+              )}
+              {features.finder && (
+                <li>
+                  <NavLink href="/finder" onNavigate={close}>
+                    Finder
+                  </NavLink>
+                </li>
+              )}
+              <li>
+                <NavLink href="/about" onNavigate={close}>
+                  About
+                </NavLink>
+              </li>
+              <li className="menu-only">
+                <NavLink href="/compare" onNavigate={close}>
+                  Compare{compare.length > 0 ? ` (${compare.length})` : ''}
+                </NavLink>
+              </li>
+              {showAccount && (
+                <li className="menu-only">
+                  <NavLink href={account.user ? '/account' : '/signin'} onNavigate={close}>
+                    {account.user ? 'Account' : 'Sign in'}
+                  </NavLink>
+                </li>
+              )}
+            </ul>
+          </nav>
+          <div className="header-actions">
+            {features.assistant && (
+              <button
+                type="button"
+                className="ask-button"
+                onClick={() => {
+                  close();
+                  openAssistant({ productId: null });
+                }}
+              >
+                <MessageCircle size={17} aria-hidden="true" />
+                <span className="ask-label">Ask</span>
+                <span className="sr-only"> the shopping assistant</span>
+              </button>
             )}
-            <li>
-              <NavLink href="/about" onNavigate={close}>
-                About
-              </NavLink>
-            </li>
-          </ul>
-        </nav>
-        <div className="header-actions">
-          {features.assistant && (
+            <Link
+              href="/compare"
+              className="icon-button hide-small"
+              onClick={close}
+              aria-label={`Compare, ${compare.length} selected`}
+              aria-current={pathname === '/compare' ? 'page' : undefined}
+            >
+              <Scale size={18} aria-hidden="true" />
+              {compare.length > 0 && (
+                <span className="badge" aria-hidden="true">
+                  {compare.length}
+                </span>
+              )}
+            </Link>
+            <Link
+              href="/basket"
+              className="icon-button"
+              onClick={close}
+              aria-label={`Basket, ${itemCount} ${itemCount === 1 ? 'item' : 'items'}`}
+              aria-current={pathname === '/basket' ? 'page' : undefined}
+            >
+              <ShoppingBag size={18} aria-hidden="true" />
+              {itemCount > 0 && (
+                <span className="badge" aria-hidden="true">
+                  {itemCount}
+                </span>
+              )}
+            </Link>
+            {showAccount && (
+              <Link
+                href={account.user ? '/account' : '/signin'}
+                className="icon-button hide-small"
+                onClick={close}
+                aria-label={account.user ? 'Account' : 'Sign in'}
+                aria-current={pathname === '/account' || pathname === '/signin' ? 'page' : undefined}
+              >
+                <UserRound size={18} aria-hidden="true" />
+              </Link>
+            )}
             <button
+              ref={menuButton}
               type="button"
-              className="btn btn-secondary btn-small"
+              className="icon-button menu-toggle"
+              aria-expanded={menuOpen}
+              aria-controls="site-nav"
+              aria-label={menuOpen ? 'Close menu' : 'Menu'}
               onClick={() => {
-                close();
-                openAssistant({ productId: null });
+                const opening = !menuOpen;
+                setMenuOpen(opening);
+                // Move keyboard focus into the menu so Tab continues through its links.
+                if (opening) requestAnimationFrame(() => document.querySelector<HTMLElement>('#site-nav a')?.focus());
               }}
             >
-              <MessageCircle size={16} aria-hidden="true" /> Ask
-              <span className="sr-only"> the shopping assistant</span>
+              {menuOpen ? <X size={20} aria-hidden="true" /> : <Menu size={20} aria-hidden="true" />}
             </button>
-          )}
-          <Link href="/compare" className="btn btn-quiet btn-small" onClick={close}>
-            <Scale size={16} aria-hidden="true" /> <span className="action-label">Compare</span>
-            <span className="count" aria-label={`${compare.length} selected`}>
-              {compare.length}
-            </span>
-          </Link>
-          <Link href="/basket" className="btn btn-quiet btn-small" onClick={close}>
-            <ShoppingBag size={16} aria-hidden="true" /> <span className="action-label">Basket</span>
-            <span className="count" aria-label={`${itemCount} items`}>
-              {itemCount}
-            </span>
-          </Link>
-          {showAccount && (
-            <Link
-              href={account.user ? '/account' : '/signin'}
-              className="btn btn-quiet btn-small account-link"
-              onClick={close}
-              aria-current={pathname === '/account' || pathname === '/signin' ? 'page' : undefined}
-            >
-              <UserRound size={16} aria-hidden="true" />
-              <span className="account-label">{account.user ? 'Account' : 'Sign in'}</span>
-            </Link>
-          )}
+          </div>
         </div>
       </header>
       <main id="main" tabIndex={-1}>
@@ -170,6 +220,7 @@ export function SiteShell({ children }: { children: ReactNode }) {
         <div>
           <p className="brand small">
             <Logo />
+            <span className="sr-only">Botanical &amp; You</span>
           </p>
           <p>A dissertation prototype. Products are demos; nothing can be bought.</p>
         </div>

@@ -1,10 +1,9 @@
-/** Retro botanical mascot and hand-lettered wordmark. */
+/** Retro botanical mascot and hand-lettered wordmark. Decorative: the surrounding link or text carries the name. */
 export function Logo() {
   return (
     <span
       className="logo"
-      role="img"
-      aria-label="Botanical & You"
+      aria-hidden="true"
       style={{
         display: 'block',
         width: 150,
