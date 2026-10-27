@@ -115,8 +115,11 @@ export async function POST(request: Request) {
     if (err instanceof Anthropic.RateLimitError) {
       return errorResponse('rate-limited', 'The assistant is busy right now. Please wait a moment and try again.', 429);
     }
-    if (err instanceof Anthropic.AuthenticationError || err instanceof Anthropic.PermissionDeniedError) {
+    if (err instanceof Anthropic.AuthenticationError) {
       return errorResponse('upstream', 'The assistant isn’t configured correctly (the API key was rejected).', 502);
+    }
+    if (err instanceof Anthropic.PermissionDeniedError) {
+      return errorResponse('upstream', 'The assistant isn’t configured correctly (the API key can’t use this model).', 502);
     }
     if (err instanceof Anthropic.APIConnectionError) {
       return errorResponse('upstream', 'The assistant couldn’t be reached. Check the connection and try again.', 502);
