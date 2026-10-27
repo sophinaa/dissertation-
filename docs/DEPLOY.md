@@ -6,13 +6,13 @@ This publishes the site at a public `*.workers.dev` link (or your own domain) wi
 
 ```sh
 npx wrangler login                      # opens the browser to sign in to Cloudflare
-npx wrangler d1 create botanical-accounts
+npx wrangler d1 create dissertation-accounts
 ```
 
 Copy the `database_id` it prints. The schema is created automatically on first use; to create it up front instead:
 
 ```sh
-npx wrangler d1 execute botanical-accounts --remote --file=migrations/0001_accounts.sql
+npx wrangler d1 execute dissertation-accounts --remote --file=migrations/0001_accounts.sql
 ```
 
 ## 2. Build with your database ID
@@ -26,7 +26,7 @@ D1_DATABASE_ID=<your-database-id> npm run build
 Secrets are stored encrypted by Cloudflare and never appear in the code or the browser.
 
 ```sh
-openssl rand -base64 48 | npx wrangler secret put AUTH_SECRET --name sites-project
+openssl rand -base64 48 | npx wrangler secret put AUTH_SECRET --name dissertation
 ```
 
 Without `AUTH_SECRET` (32+ characters), accounts stay switched off and the rest of the shop works as normal.
@@ -37,7 +37,7 @@ Without `AUTH_SECRET` (32+ characters), accounts stay switched off and the rest 
 npx wrangler deploy --config dist/server/wrangler.json
 ```
 
-Wrangler prints the public link, e.g. `https://sites-project.<your-subdomain>.workers.dev`. Use that address (or your custom domain) in the provider settings below. Redeploy after changing secrets.
+Wrangler prints the public link, e.g. `https://dissertation.<your-subdomain>.workers.dev`. Use that address (or your custom domain) in the provider settings below. Redeploy after changing secrets.
 
 ## 5. Sign-in methods (each optional; buttons appear once configured)
 
@@ -45,15 +45,15 @@ Wrangler prints the public link, e.g. `https://sites-project.<your-subdomain>.wo
 
 1. Sign up at resend.com, add and verify your sending domain.
 2. Create an API key.
-3. `npx wrangler secret put RESEND_API_KEY --name sites-project`
-4. `npx wrangler secret put EMAIL_FROM --name sites-project` (e.g. `Botanical & You <signin@your-domain.com>`)
+3. `npx wrangler secret put RESEND_API_KEY --name dissertation`
+4. `npx wrangler secret put EMAIL_FROM --name dissertation` (e.g. `Botanical & You <signin@your-domain.com>`)
 
 ### Google
 
 1. Google Cloud Console → APIs & Services → OAuth consent screen: set it up with the `openid` and `email` scopes.
 2. Credentials → Create credentials → OAuth client ID → **Web application**.
 3. Authorised redirect URI: `https://<your-site>/api/auth/oauth/google/callback`
-4. `npx wrangler secret put GOOGLE_CLIENT_ID --name sites-project` and `GOOGLE_CLIENT_SECRET`.
+4. `npx wrangler secret put GOOGLE_CLIENT_ID --name dissertation` and `GOOGLE_CLIENT_SECRET`.
 
 ### Apple (needs a paid Apple Developer Program membership)
 
@@ -64,7 +64,7 @@ Wrangler prints the public link, e.g. `https://sites-project.<your-subdomain>.wo
 
 ### Live AI assistant (optional)
 
-`npx wrangler secret put ANTHROPIC_API_KEY --name sites-project`
+`npx wrangler secret put ANTHROPIC_API_KEY --name dissertation`
 
 ## Local development
 

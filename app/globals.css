@@ -382,7 +382,7 @@ code {
   flex-shrink: 0;
 }
 .site-header nav {
-  justify-self: center;
+  justify-self: end;
 }
 .site-header nav ul {
   display: flex;

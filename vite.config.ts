@@ -13,13 +13,15 @@ const { d1, r2 } = hostingConfig;
 const isCodexSeatbeltSandbox = process.env.CODEX_SANDBOX === 'seatbelt';
 
 const localBindingConfig = {
+  // Worker name: becomes https://<name>.<subdomain>.workers.dev when deployed.
+  name: process.env.WORKER_NAME ?? 'dissertation',
   main: 'vinext/server/fetch-handler',
   compatibility_flags: ['nodejs_compat'],
   d1_databases: d1
     ? [
         {
           binding: d1,
-          database_name: 'site-creator-d1',
+          database_name: process.env.D1_DATABASE_NAME ?? 'dissertation-accounts',
           // Set D1_DATABASE_ID to your real database ID before deploying (see docs/DEPLOY.md).
           database_id: process.env.D1_DATABASE_ID ?? SITE_CREATOR_PLACEHOLDER_DATABASE_ID,
         },
